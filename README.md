@@ -69,9 +69,48 @@ A responsive, single-page web app built with **React**, **Vite**, and **Tailwind
   - Collapsible on desktop.
   - On mobile, transitions into a header badge button that slides out a dedicated drawer panel.
 
-### 3. 💾 Backup & Data Portability
+### 3. 🔐 Google Authentication & Multi-Tenant Data Isolation
+- **1-Click Google Sign-In**:
+  - Securely sign in using your Google account via Firebase Authentication.
+  - Neo-brutalist user profile avatar and dropdown with active sync indicator.
+- **Isolated Per-User Cloud Storage**:
+  - Every user's pins, daily tasks, and streak history are strictly partitioned in Cloud Firestore under `/users/{userId}/...`.
+  - No user can access or view another user's board or tasks.
+- **Production-Grade Firestore Security Rules**:
+  - Pre-configured `firestore.rules` enforcing `request.auth.uid == userId`, immutable timestamps/IDs, and schema bounds.
+- **Guest Mode Fallback**:
+  - Visitors without a login can still use the app offline with browser IndexedDB and LocalStorage.
+
+### 4. 💾 Backup & Data Portability
 - **JSON Export**: Download all your image pins, daily tasks, and streak history as a single `.json` file.
 - **JSON Import**: Upload any backup file to restore your entire board state instantly.
+
+---
+
+## 🌐 Netlify Deployment & Firebase Setup
+
+### 1. Firebase Project Setup (Free)
+1. Go to the [Firebase Console](https://console.firebase.google.com/) and create a project.
+2. In **Build > Authentication > Sign-in method**, enable **Google**.
+3. Under **Authentication > Settings > Authorized domains**, add:
+   - Your Netlify site domain (e.g. `your-pinboard.netlify.app`)
+   - `localhost` (for local development)
+4. In **Build > Firestore Database**, create a database and paste/deploy the provided [firestore.rules](file:///firestore.rules).
+5. In **Project settings > General > Your apps**, register a Web App (`</>`) and copy your configuration keys.
+
+### 2. Configure on Netlify
+In your Netlify site dashboard, navigate to **Site configuration > Environment variables** and add:
+
+```env
+VITE_FIREBASE_API_KEY=AIzaSy...
+VITE_FIREBASE_AUTH_DOMAIN=your-app.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-app
+VITE_FIREBASE_STORAGE_BUCKET=your-app.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=123456789012
+VITE_FIREBASE_APP_ID=1:123456789012:web:...
+```
+
+*(You can also click **Sign in with Google** directly on your live site and paste your config into the built-in setup assistant for instant setup!)*
 
 ---
 
@@ -79,9 +118,11 @@ A responsive, single-page web app built with **React**, **Vite**, and **Tailwind
 
 - **React 18** + **TypeScript**
 - **Vite 6** (lightning-fast HMR and bundling)
-- **Tailwind CSS 3** (configured with neo-brutalist shadows, borders, and color tokens)
+- **Tailwind CSS 3** (neo-brutalist design tokens, borders, and hard offset shadows)
+- **Firebase Auth** (Google federated sign-in)
+- **Cloud Firestore** (multi-tenant real-time database with user-isolated security rules)
+- **IndexedDB** (local guest offline image persistence)
 - **Lucide React** (crisp neo-brutalist icons)
-- **IndexedDB** (high-capacity client-side image storage)
 
 ---
 

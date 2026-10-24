@@ -1,0 +1,238 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// This security rules file assumes the following data structures:
+//
+// Collection: users
+// Document ID: {userId} (matches Firebase Auth UID)
+// Fields:
+//   - uid: string (optional, must match request.auth.uid, immutable) - Auth user ID
+//   - email: string (optional, valid email format, max 254 chars) - User email
+//   - displayName: string (optional, max 100 chars) - User display name
+//   - photoURL: string (optional, valid URL, max 2048 chars) - Profile image URL
+//   - createdAt: timestamp or number (optional, immutable) - Account creation timestamp
+//   - lastLoginAt: timestamp or number (optional) - Last sign in timestamp
+//
+// Subcollection: users/{userId}/pins
+// Document ID: {pinId} (unique string ID, matches field 'id')
+// Fields:
+//   - id: string (required, max 128 chars, matches document pinId, immutable) - Pin ID
+//   - title: string (required, 1-200 chars) - Pin display title
+//   - caption: string (optional, max 1000 chars) - Subtitle or caption
+//   - note: string (optional, max 2000 chars) - Sticky note content
+//   - tags: list of strings (optional, max 10 tags, each tag max 30 chars) - Categorization tags
+//   - imageUrl: string (required, 5-800,000 chars, data URI, https:// or gs://) - Compressed image or URL
+//   - pinnedAt: number or timestamp (required, epoch ms or timestamp, immutable) - Pin creation time
+//   - rotation: number (required, between -45 and +45) - Visual canvas rotation angle
+//   - pinStyle: string (required, one of ['tape', 'pin-yellow', 'pin-purple', 'pin-orange', 'pin-red', 'pin-green', 'pin-blue']) - Pin aesthetic style
+//   - pinSize: number (optional, 10 to 100) - Pin indicator size
+//   - aspectRatio: number (optional, 0.1 to 10) - Card aspect ratio (width / height)
+//   - order: number (required, non-negative integer/number) - Position order on canvas
+//
+// Subcollection: users/{userId}/tasks
+// Document ID: {taskId} (unique string ID, matches field 'id')
+// Fields:
+//   - id: string (required, max 128 chars, matches document taskId, immutable) - Task ID
+//   - title: string (required, 1-200 chars) - Task title
+//   - completed: bool (required) - Completion state
+//   - repeatDaily: bool (required) - True to reset daily, false for single-day task
+//   - createdAt: number or timestamp (required, epoch ms or timestamp, immutable) - Creation time
+//   - priority: string (optional, one of ['low', 'medium', 'high']) - Priority level
+//
+// Subcollection: users/{userId}/stats
+// Document ID: {statId} (e.g. 'daily', 'current', or unique ID)
+// Fields:
+//   - lastActiveDate: string (required, YYYY-MM-DD or empty string, max 10 chars) - Last active streak date
+//   - streakCount: number (required, integer >= 0 and <= 100000) - Current daily streak count
+//   - history: map (required, max 1000 keys) - Daily completion history mapping date to counts
+//   - id: string (optional, max 128 chars, immutable) - Optional stat document ID
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    // Check if the request is from an authenticated user
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if the user owns the resource path
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Validate that only allowed fields exist in the document payload
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // Validate that required fields exist in the document payload
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    // Validate optional string field
+    function isValidOptionalString(field, minLen, maxLen) {
+      return !(field in request.resource.data) ||
+        (request.resource.data[field] is string &&
+         request.resource.data[field].size() >= minLen &&
+         request.resource.data[field].size() <= maxLen);
+    }
+
+    // Validate email format
+    function isValidEmail(email) {
+      return email is string &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // Validate tags list: max 10 items, each item must be string with size <= 30
+    function isValidPinTags(data) {
+      return !('tags' in data) || (
+        data.tags is list &&
+        data.tags.size() <= 10 &&
+        (data.tags.size() < 1 || (data.tags[0] is string && data.tags[0].size() <= 30)) &&
+        (data.tags.size() < 2 || (data.tags[1] is string && data.tags[1].size() <= 30)) &&
+        (data.tags.size() < 3 || (data.tags[2] is string && data.tags[2].size() <= 30)) &&
+        (data.tags.size() < 4 || (data.tags[3] is string && data.tags[3].size() <= 30)) &&
+        (data.tags.size() < 5 || (data.tags[4] is string && data.tags[4].size() <= 30)) &&
+        (data.tags.size() < 6 || (data.tags[5] is string && data.tags[5].size() <= 30)) &&
+        (data.tags.size() < 7 || (data.tags[6] is string && data.tags[6].size() <= 30)) &&
+        (data.tags.size() < 8 || (data.tags[7] is string && data.tags[7].size() <= 30)) &&
+        (data.tags.size() < 9 || (data.tags[8] is string && data.tags[8].size() <= 30)) &&
+        (data.tags.size() < 10 || (data.tags[9] is string && data.tags[9].size() <= 30))
+      );
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    // Validate user profile document
+    function isValidUserDoc(data, userId) {
+      return hasOnlyAllowedFields(['uid', 'email', 'displayName', 'photoURL', 'createdAt', 'lastLoginAt']) &&
+        (!('uid' in data) || (data.uid is string && data.uid == userId)) &&
+        (!('email' in data) || (isValidEmail(data.email) && data.email.size() <= 254)) &&
+        (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 100)) &&
+        (!('photoURL' in data) || (data.photoURL is string &&
+          (data.photoURL.matches("^https?://.*") || data.photoURL.matches("^data:image/.*") || data.photoURL.matches("^gs://.*")) &&
+          data.photoURL.size() <= 2048)) &&
+        (!('createdAt' in data) || (data.createdAt is timestamp || (data.createdAt is number && data.createdAt > 0))) &&
+        (!('lastLoginAt' in data) || (data.lastLoginAt is timestamp || (data.lastLoginAt is number && data.lastLoginAt > 0)));
+    }
+
+    // Validate image pin document
+    function isValidPin(data, pinId) {
+      return hasOnlyAllowedFields(['id', 'title', 'caption', 'note', 'tags', 'imageUrl', 'pinnedAt', 'rotation', 'pinStyle', 'pinSize', 'aspectRatio', 'order']) &&
+        hasRequiredFields(['id', 'title', 'imageUrl', 'pinnedAt', 'rotation', 'pinStyle', 'order']) &&
+        data.id is string && data.id == pinId && data.id.size() > 0 && data.id.size() <= 128 &&
+        data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+        data.imageUrl is string && data.imageUrl.size() >= 5 && data.imageUrl.size() <= 800000 &&
+        (data.imageUrl.matches("^https?://.*") || data.imageUrl.matches("^data:image/.*") || data.imageUrl.matches("^gs://.*")) &&
+        ((data.pinnedAt is number && data.pinnedAt > 0 && data.pinnedAt < 4102444800000) || (data.pinnedAt is timestamp)) &&
+        data.rotation is number && data.rotation >= -45 && data.rotation <= 45 &&
+        data.pinStyle in ['tape', 'pin-yellow', 'pin-purple', 'pin-orange', 'pin-red', 'pin-green', 'pin-blue'] &&
+        data.order is number && data.order >= 0 &&
+        isValidOptionalString('caption', 0, 1000) &&
+        isValidOptionalString('note', 0, 2000) &&
+        isValidPinTags(data) &&
+        (!('pinSize' in data) || (data.pinSize is number && data.pinSize >= 10 && data.pinSize <= 100)) &&
+        (!('aspectRatio' in data) || (data.aspectRatio is number && data.aspectRatio > 0 && data.aspectRatio <= 10));
+    }
+
+    // Immutable checks for pin update
+    function arePinImmutableFieldsUnchanged() {
+      return request.resource.data.id == resource.data.id &&
+        request.resource.data.pinnedAt == resource.data.pinnedAt;
+    }
+
+    // Validate daily task document
+    function isValidTask(data, taskId) {
+      return hasOnlyAllowedFields(['id', 'title', 'completed', 'repeatDaily', 'createdAt', 'priority']) &&
+        hasRequiredFields(['id', 'title', 'completed', 'repeatDaily', 'createdAt']) &&
+        data.id is string && data.id == taskId && data.id.size() > 0 && data.id.size() <= 128 &&
+        data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+        data.completed is bool &&
+        data.repeatDaily is bool &&
+        ((data.createdAt is number && data.createdAt > 0 && data.createdAt < 4102444800000) || (data.createdAt is timestamp)) &&
+        (!('priority' in data) || data.priority in ['low', 'medium', 'high']);
+    }
+
+    // Immutable checks for task update
+    function areTaskImmutableFieldsUnchanged() {
+      return request.resource.data.id == resource.data.id &&
+        request.resource.data.createdAt == resource.data.createdAt;
+    }
+
+    // Validate streak statistics document
+    function isValidStats(data) {
+      return hasOnlyAllowedFields(['lastActiveDate', 'streakCount', 'history', 'id']) &&
+        hasRequiredFields(['lastActiveDate', 'streakCount', 'history']) &&
+        (!('id' in data) || (data.id is string && data.id.size() <= 128)) &&
+        data.lastActiveDate is string &&
+        data.lastActiveDate.size() <= 10 &&
+        (data.lastActiveDate == '' || data.lastActiveDate.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")) &&
+        data.streakCount is number &&
+        data.streakCount >= 0 &&
+        data.streakCount <= 100000 &&
+        data.history is map &&
+        data.history.keys().size() <= 1000;
+    }
+
+    // Immutable checks for stats update
+    function areStatsImmutableFieldsUnchanged() {
+      return !('id' in resource.data) || !('id' in request.resource.data) ||
+        request.resource.data.id == resource.data.id;
+    }
+
+    // ===============================================================
+    // Rules Definition
+    // ===============================================================
+
+    // Default deny all access to any document
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // User profile and subcollections
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUserDoc(request.resource.data, userId);
+      allow update: if isOwner(userId) && isValidUserDoc(request.resource.data, userId) &&
+        (!('uid' in resource.data) || !('uid' in request.resource.data) || request.resource.data.uid == resource.data.uid) &&
+        (!('createdAt' in resource.data) || !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt);
+      allow delete: if isOwner(userId);
+
+      // Pins collection
+      match /pins/{pinId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidPin(request.resource.data, pinId);
+        allow update: if isOwner(userId) && isValidPin(request.resource.data, pinId) && arePinImmutableFieldsUnchanged();
+        allow delete: if isOwner(userId);
+      }
+
+      // Daily tasks collection
+      match /tasks/{taskId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidTask(request.resource.data, taskId);
+        allow update: if isOwner(userId) && isValidTask(request.resource.data, taskId) && areTaskImmutableFieldsUnchanged();
+        allow delete: if isOwner(userId);
+      }
+
+      // Streak stats collection
+      match /stats/{statId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidStats(request.resource.data);
+        allow update: if isOwner(userId) && isValidStats(request.resource.data) && areStatsImmutableFieldsUnchanged();
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}
