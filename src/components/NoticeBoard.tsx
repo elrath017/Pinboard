@@ -49,10 +49,12 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIndex(index);
     e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('application/x-pinboard-pin', String(index));
   };
 
   const handleDragOver = (e: React.DragEvent, targetIndex: number) => {
     e.preventDefault();
+    e.stopPropagation();
     if (draggedIndex === null || draggedIndex === targetIndex) return;
 
     // Perform reorder preview
@@ -66,7 +68,15 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({
     onReorderPins(normalized);
   };
 
-  const handleDragEnd = () => {
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggedIndex(null);
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setDraggedIndex(null);
   };
 
@@ -146,6 +156,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({
                 onUpdatePin={onUpdatePin}
                 onDragStart={handleDragStart}
                 onDragOver={handleDragOver}
+                onDrop={handleDrop}
                 onDragEnd={handleDragEnd}
               />
             ))}

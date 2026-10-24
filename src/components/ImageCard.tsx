@@ -10,7 +10,8 @@ interface ImageCardProps {
   onUpdatePin: (id: string, updates: { title?: string; caption?: string; note?: string; pinStyle?: PinStyle }) => void;
   onDragStart: (e: React.DragEvent, index: number) => void;
   onDragOver: (e: React.DragEvent, index: number) => void;
-  onDragEnd: () => void;
+  onDrop?: (e: React.DragEvent) => void;
+  onDragEnd: (e: React.DragEvent) => void;
 }
 
 export const ImageCard: React.FC<ImageCardProps> = ({
@@ -21,6 +22,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({
   onUpdatePin,
   onDragStart,
   onDragOver,
+  onDrop,
   onDragEnd,
 }) => {
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
@@ -110,7 +112,16 @@ export const ImageCard: React.FC<ImageCardProps> = ({
       draggable
       onDragStart={e => onDragStart(e, index)}
       onDragOver={e => onDragOver(e, index)}
-      onDragEnd={onDragEnd}
+      onDrop={e => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (onDrop) onDrop(e);
+      }}
+      onDragEnd={e => {
+        e.preventDefault();
+        e.stopPropagation();
+        onDragEnd(e);
+      }}
       style={cardFlexStyle}
       className="group relative bg-white dark:bg-[#181820] border-[2.5px] border-black dark:border-zinc-700 rounded-xl shadow-[4px_4px_0_#000] hover:shadow-[6px_6px_0_#000] transition-all duration-150 flex flex-col cursor-pointer select-none p-3 pt-4 shrink-0 max-w-full"
       onClick={() => onOpenLightbox(pin)}

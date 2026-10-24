@@ -15,6 +15,7 @@ import {
   getStoredTasks,
   saveTasks,
   getStoredStats,
+  saveStats,
   checkAndPerformDailyReset,
   simulateNewDay,
   exportAllData,
@@ -197,11 +198,21 @@ export function App() {
     return acc;
   }, {} as Record<string, number>);
 
-  // Global window drag & drop handler
+  // Global window drag & drop handler (strictly for external image file drops from desktop/explorer)
   const handleWindowDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    if (e.dataTransfer.types.includes('Files')) {
-      setIsWindowDragging(true);
+    const types = e.dataTransfer.types ? Array.from(e.dataTransfer.types) : [];
+    const isFileDrag = types.includes('Files') && !types.includes('application/x-pinboard-pin');
+
+    if (isFileDrag) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      if (!isWindowDragging) {
+        setIsWindowDragging(true);
+      }
+    } else {
+      if (isWindowDragging) {
+        setIsWindowDragging(false);
+      }
     }
   };
 
@@ -215,7 +226,15 @@ export function App() {
   const handleWindowDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsWindowDragging(false);
-    setIsUploadModalOpen(true);
+
+    // Only open the upload modal if real external files were dropped, NEVER for internal pin reorders
+    const files = e.dataTransfer.files;
+    const hasFiles = files && files.length > 0;
+    const isPinReorder = e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('application/x-pinboard-pin');
+
+    if (hasFiles && !isPinReorder) {
+      setIsUploadModalOpen(true);
+    }
   };
 
   // Add multiple pins
@@ -340,10 +359,11 @@ export function App() {
       return t;
     });
     setTasks(updated);
+    saveTasks(updated); // Mirror locally
     if (user) {
-      saveUserTasks(user.uid, updated);
-    } else {
-      saveTasks(updated);
+      saveUserTasks(user.uid, updated).catch(err => {
+        console.error('Failed to sync task status to Firestore:', err);
+      });
     }
   };
 
@@ -357,20 +377,23 @@ export function App() {
     };
     const updated = [...tasks, newTask];
     setTasks(updated);
+    saveTasks(updated); // Mirror locally
     if (user) {
-      saveUserTasks(user.uid, updated);
-    } else {
-      saveTasks(updated);
+      saveUserTasks(user.uid, updated).catch(err => {
+        console.error('Failed to sync new task to Firestore:', err);
+        setToastMessage(`⚠️ Task saved locally; cloud sync failed: ${err.message}`);
+      });
     }
   };
 
   const handleDeleteTask = (id: string) => {
     const updated = tasks.filter(t => t.id !== id);
     setTasks(updated);
+    saveTasks(updated); // Mirror locally
     if (user) {
-      deleteUserTask(user.uid, id);
-    } else {
-      saveTasks(updated);
+      deleteUserTask(user.uid, id).catch(err => {
+        console.error('Failed to delete task from Firestore:', err);
+      });
     }
   };
 
@@ -382,10 +405,11 @@ export function App() {
       return t;
     });
     setTasks(updated);
+    saveTasks(updated); // Mirror locally
     if (user) {
-      saveUserTasks(user.uid, updated);
-    } else {
-      saveTasks(updated);
+      saveUserTasks(user.uid, updated).catch(err => {
+        console.error('Failed to update task in Firestore:', err);
+      });
     }
   };
 
@@ -394,9 +418,11 @@ export function App() {
     const res = simulateNewDay(tasks);
     setTasks(res.tasks);
     setStats(res.stats);
+    saveTasks(res.tasks);
+    saveStats(res.stats);
     if (user) {
-      saveUserTasks(user.uid, res.tasks);
-      saveUserStats(user.uid, res.stats);
+      saveUserTasks(user.uid, res.tasks).catch(console.warn);
+      saveUserStats(user.uid, res.stats).catch(console.warn);
     }
     setToastMessage('✨ Tomorrow simulated! Recurring tasks uncheck and one-time tasks clear.');
     setTimeout(() => setToastMessage(null), 4000);

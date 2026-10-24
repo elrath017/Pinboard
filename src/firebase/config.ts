@@ -31,6 +31,15 @@ export function getActiveFirebaseConfig(): FirebaseCustomConfig | null {
     appId: (metaEnv.VITE_FIREBASE_APP_ID as string) || '',
   };
 
+  // Dynamic reconciliation: in Firebase, authDomain is standardly `<projectId>.firebaseapp.com`
+  // If projectId has a typo (like accidental trailing letters) or is missing, derive it from authDomain
+  if (envConfig.authDomain && envConfig.authDomain.endsWith('.firebaseapp.com')) {
+    const canonicalProjectId = envConfig.authDomain.replace('.firebaseapp.com', '');
+    if (!envConfig.projectId || (envConfig.projectId !== canonicalProjectId && envConfig.projectId.startsWith(canonicalProjectId))) {
+      envConfig.projectId = canonicalProjectId;
+    }
+  }
+
   // Trim any accidental leading/trailing whitespace
   if (envConfig.projectId) {
     envConfig.projectId = envConfig.projectId.trim();
@@ -45,6 +54,13 @@ export function getActiveFirebaseConfig(): FirebaseCustomConfig | null {
     const saved = localStorage.getItem('pinboard_firebase_config');
     if (saved) {
       const parsed = JSON.parse(saved) as FirebaseCustomConfig;
+      if (parsed.authDomain && parsed.authDomain.endsWith('.firebaseapp.com')) {
+        const canonicalProjectId = parsed.authDomain.replace('.firebaseapp.com', '');
+        if (!parsed.projectId || (parsed.projectId !== canonicalProjectId && parsed.projectId.startsWith(canonicalProjectId))) {
+          parsed.projectId = canonicalProjectId;
+          localStorage.setItem('pinboard_firebase_config', JSON.stringify(parsed));
+        }
+      }
       if (parsed.projectId) {
         parsed.projectId = parsed.projectId.trim();
       }
