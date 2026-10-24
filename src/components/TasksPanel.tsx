@@ -205,7 +205,7 @@ export const TasksPanel: React.FC<TasksPanelProps> = ({
   return (
     <>
       {/* Desktop Fixed Tile in Right Corner (width ~300-330px matching demo design) */}
-      <div className="hidden lg:block fixed top-20 right-6 z-40 w-80 sm:w-84 transition-all duration-200">
+      <div className="hidden lg:block fixed top-20 right-6 z-30 w-80 sm:w-84 transition-all duration-200">
         {renderPanelContent()}
       </div>
 

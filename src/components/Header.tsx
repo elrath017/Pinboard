@@ -64,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-white dark:bg-[#121217] border-b-[2.5px] border-black dark:border-zinc-700 shadow-[0_2px_0_#000] dark:shadow-[0_2px_0_#000] transition-colors">
+    <header className="sticky top-0 z-40 w-full bg-white dark:bg-[#121217] border-b-[2.5px] border-black dark:border-zinc-700 shadow-[0_2px_0_#000] dark:shadow-[0_2px_0_#000] transition-colors">
       <div className="w-full px-4 sm:px-6 h-16 flex items-center justify-between gap-3 sm:gap-4">
         
         {/* Left: Logo/Title + Add Image + Filter Dropdown Button */}
