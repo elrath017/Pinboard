@@ -70,6 +70,20 @@ export function App() {
       });
     }, 60000);
 
+    // 4. URL query param support for deep linking / automated previews (?modal=upload, ?lightbox=sample-card-1)
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('modal') === 'upload') {
+      setIsUploadModalOpen(true);
+    }
+    const lightboxParam = params.get('lightbox');
+    if (lightboxParam) {
+      getStoredPins().then(loadedPins => {
+        const pool = loadedPins && loadedPins.length > 0 ? loadedPins : SAMPLE_PINS;
+        const target = pool.find(p => p.id === lightboxParam) || pool[0];
+        if (target) setLightboxPin(target);
+      });
+    }
+
     return () => clearInterval(timer);
   }, []);
 

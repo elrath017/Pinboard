@@ -2,6 +2,21 @@
 
 A responsive, single-page web app built with **React**, **Vite**, and **Tailwind CSS**, styled in a vibrant **Neo-Brutalist** aesthetic.
 
+![Pinboard Dashboard](./screenshots/pinboard-dashboard.png)
+
+---
+
+## 📸 Screenshots & Previews
+
+| Full Visual Canvas & Fixed Tasks Tile | Fullscreen Lightbox & Edit |
+| :---: | :---: |
+| ![Pinboard Dashboard](./screenshots/pinboard-dashboard.png) | ![Pinboard Lightbox](./screenshots/pinboard-lightbox.png) |
+
+<p align="center">
+  <b>Multi-File Upload & Attachment Customizer</b><br/>
+  <img src="./screenshots/pinboard-upload.png" alt="Pinboard Upload Modal" width="850" />
+</p>
+
 ---
 
 ## 🎨 Visual Theme (Neo-Brutalist Look)
