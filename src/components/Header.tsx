@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Download, Upload, Search, CheckSquare, Filter, ChevronDown, Check, X, Cloud, LogOut, User as UserIcon, Settings } from 'lucide-react';
+import { Plus, Download, Upload, Search, CheckSquare, Filter, ChevronDown, Check, X, Cloud, LogOut, User as UserIcon, Settings, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 interface HeaderProps {
   onOpenUploadModal: () => void;
@@ -38,6 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   const { user, loading: authLoading, signIn, logOut, openSetupModal, isConfigured } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -62,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-white border-b-[2.5px] border-black shadow-[0_2px_0_#000]">
+    <header className="sticky top-0 z-30 w-full bg-white dark:bg-[#121217] border-b-[2.5px] border-black dark:border-zinc-700 shadow-[0_2px_0_#000] dark:shadow-[0_2px_0_#000] transition-colors">
       <div className="w-full px-4 sm:px-6 h-16 flex items-center justify-between gap-3 sm:gap-4">
         
         {/* Left: Logo/Title + Add Image + Filter Dropdown Button */}
@@ -74,7 +76,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             {/* Header title styled as "Pin" in black + "board" in purple */}
             <h1 className="text-xl sm:text-2xl font-black tracking-tight flex items-center">
-              <span className="text-black">Pin</span>
+              <span className="text-black dark:text-white">Pin</span>
               <span className="text-brutal-purple ml-0.5">board</span>
             </h1>
           </div>
@@ -96,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`btn-brutal px-3 py-2 rounded-lg font-bold text-xs sm:text-sm border-2 border-black flex items-center gap-1.5 transition-all ${
                 selectedTag
                   ? 'bg-brutal-yellow text-black shadow-brutal'
-                  : 'bg-white text-black shadow-brutal hover:bg-zinc-50'
+                  : 'bg-white dark:bg-[#1a1a22] text-black dark:text-white shadow-brutal hover:bg-zinc-50 dark:hover:bg-zinc-800'
               }`}
               title="Filter pins by tags"
             >
@@ -109,8 +111,8 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Dropdown Menu of Tags */}
             {isFilterDropdownOpen && (
-              <div className="absolute left-0 mt-2 w-56 sm:w-64 bg-white border-[2.5px] border-black rounded-xl shadow-brutal-lg py-1.5 z-50 animate-fadeIn">
-                <div className="px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-zinc-500 border-b border-black/10 flex items-center justify-between">
+              <div className="absolute left-0 mt-2 w-56 sm:w-64 bg-white dark:bg-[#181820] border-[2.5px] border-black dark:border-zinc-600 rounded-xl shadow-brutal-lg py-1.5 z-50 animate-fadeIn text-black dark:text-white">
+                <div className="px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400 border-b border-black/10 dark:border-zinc-700 flex items-center justify-between">
                   <span>Tags ({allTags.length})</span>
                   {selectedTag && (
                     <button
@@ -133,12 +135,12 @@ export const Header: React.FC<HeaderProps> = ({
                       setIsFilterDropdownOpen(false);
                     }}
                     className={`w-full px-3 py-2 text-left text-xs font-bold rounded-lg flex items-center justify-between transition-colors ${
-                      selectedTag === null ? 'bg-purple-100 text-brutal-purple' : 'hover:bg-zinc-100 text-black'
+                      selectedTag === null ? 'bg-purple-100 dark:bg-purple-950/60 text-brutal-purple' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-black dark:text-white'
                     }`}
                   >
                     <span>All Pins</span>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] font-mono font-semibold text-zinc-500">
+                      <span className="text-[11px] font-mono font-semibold text-zinc-500 dark:text-zinc-400">
                         ({totalPins})
                       </span>
                       {selectedTag === null && <Check className="w-4 h-4 text-brutal-purple stroke-[3]" />}
@@ -154,15 +156,15 @@ export const Header: React.FC<HeaderProps> = ({
                         setIsFilterDropdownOpen(false);
                       }}
                       className={`w-full px-3 py-2 text-left text-xs font-mono font-bold rounded-lg flex items-center justify-between transition-colors ${
-                        selectedTag === tag ? 'bg-amber-100 text-black' : 'hover:bg-zinc-100 text-zinc-800'
+                        selectedTag === tag ? 'bg-amber-100 dark:bg-amber-950/50 text-black dark:text-amber-200' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200'
                       }`}
                     >
                       <span className="truncate">#{tag}</span>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <span className="text-[11px] font-sans font-semibold text-zinc-500">
+                        <span className="text-[11px] font-sans font-semibold text-zinc-500 dark:text-zinc-400">
                           ({tagCounts[tag] || 1})
                         </span>
-                        {selectedTag === tag && <Check className="w-4 h-4 text-black stroke-[3]" />}
+                        {selectedTag === tag && <Check className="w-4 h-4 text-black dark:text-amber-300 stroke-[3]" />}
                       </div>
                     </button>
                   ))}
@@ -175,23 +177,37 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Center: Search Input */}
         <div className="flex-1 max-w-xs sm:max-w-sm hidden md:block">
           <div className="relative">
-            <Search className="w-4 h-4 text-black absolute left-3 top-1/2 -translate-y-1/2 stroke-[2.5]" />
+            <Search className="w-4 h-4 text-black dark:text-zinc-300 absolute left-3 top-1/2 -translate-y-1/2 stroke-[2.5]" />
             <input
               type="text"
               placeholder="Search pins, tags, notes..."
               value={searchQuery}
               onChange={e => onSearchChange(e.target.value)}
-              className="w-full bg-[#faf8ff] border-2 border-black shadow-[2px_2px_0px_#000] focus:shadow-brutal rounded-lg pl-9 pr-3 py-1.5 text-xs sm:text-sm font-medium text-black placeholder-zinc-500 outline-none transition-all"
+              className="w-full bg-[#faf8ff] dark:bg-[#1a1a22] border-2 border-black dark:border-zinc-700 shadow-[2px_2px_0px_#000] focus:shadow-brutal rounded-lg pl-9 pr-3 py-1.5 text-xs sm:text-sm font-medium text-black dark:text-white placeholder-zinc-500 dark:placeholder-zinc-400 outline-none transition-all"
             />
           </div>
         </div>
 
-        {/* Right: Data Actions & Mobile Tasks Trigger */}
+        {/* Right: Data Actions & Theme Toggle & User Account */}
         <div className="flex items-center gap-2">
+          {/* Light / Dark Mode Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="btn-brutal p-2 rounded-lg bg-white dark:bg-[#1a1a22] text-black dark:text-yellow-300 border-2 border-black dark:border-zinc-700 shadow-brutal hover:bg-zinc-50 dark:hover:bg-zinc-800 flex items-center justify-center transition-colors"
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            aria-label="Toggle dark mode"
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-4 h-4 stroke-[2.5] text-amber-300 animate-spin-slow" />
+            ) : (
+              <Moon className="w-4 h-4 stroke-[2.5] text-zinc-900" />
+            )}
+          </button>
+
           {/* Export JSON */}
           <button
             onClick={onExportBackup}
-            className="btn-brutal hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white text-black font-semibold text-xs border-2 border-black shadow-brutal hover:bg-zinc-50"
+            className="btn-brutal hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white dark:bg-[#1a1a22] text-black dark:text-white font-semibold text-xs border-2 border-black dark:border-zinc-700 shadow-brutal hover:bg-zinc-50 dark:hover:bg-zinc-800"
             title="Export all pins and tasks as JSON"
           >
             <Download className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -201,7 +217,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Import JSON */}
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="btn-brutal hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white text-black font-semibold text-xs border-2 border-black shadow-brutal hover:bg-zinc-50"
+            className="btn-brutal hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white dark:bg-[#1a1a22] text-black dark:text-white font-semibold text-xs border-2 border-black dark:border-zinc-700 shadow-brutal hover:bg-zinc-50 dark:hover:bg-zinc-800"
             title="Import JSON backup"
           >
             <Upload className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -218,13 +234,13 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Google Auth / User Account Section */}
           <div className="relative ml-1" ref={userMenuRef}>
             {authLoading ? (
-              <div className="w-8 h-8 rounded-lg bg-zinc-100 border-2 border-black animate-pulse" />
+              <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 border-2 border-black animate-pulse" />
             ) : user ? (
               /* Signed-in User Avatar */
               <div>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="btn-brutal flex items-center gap-1.5 p-1 rounded-lg bg-white border-2 border-black shadow-brutal hover:bg-zinc-50"
+                  className="btn-brutal flex items-center gap-1.5 p-1 rounded-lg bg-white dark:bg-[#1a1a22] border-2 border-black dark:border-zinc-700 shadow-brutal hover:bg-zinc-50 dark:hover:bg-zinc-800"
                   title={`Signed in as ${user.displayName || user.email}`}
                 >
                   {user.photoURL ? (
@@ -238,20 +254,20 @@ export const Header: React.FC<HeaderProps> = ({
                       {(user.displayName || user.email || 'U')[0].toUpperCase()}
                     </div>
                   )}
-                  <ChevronDown className="w-3.5 h-3.5 mr-0.5 stroke-[2.5]" />
+                  <ChevronDown className="w-3.5 h-3.5 mr-0.5 stroke-[2.5] text-black dark:text-white" />
                 </button>
 
                 {/* User Dropdown Menu */}
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white border-[2.5px] border-black rounded-xl shadow-brutal-lg p-3 z-50 animate-fadeIn space-y-3">
-                    <div className="border-b border-black/10 pb-2.5">
-                      <p className="font-black text-xs text-black truncate">
+                  <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#181820] border-[2.5px] border-black dark:border-zinc-600 rounded-xl shadow-brutal-lg p-3 z-50 animate-fadeIn space-y-3 text-black dark:text-white">
+                    <div className="border-b border-black/10 dark:border-zinc-700 pb-2.5">
+                      <p className="font-black text-xs text-black dark:text-white truncate">
                         {user.displayName || 'Google User'}
                       </p>
-                      <p className="text-[11px] font-mono text-zinc-500 truncate">
+                      <p className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 truncate">
                         {user.email}
                       </p>
-                      <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-100 border border-black text-[10px] font-bold text-emerald-800">
+                      <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 border border-black dark:border-emerald-600 text-[10px] font-bold text-emerald-800 dark:text-emerald-300">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         <span>Cloud Synced (Isolated Data)</span>
                       </div>
@@ -263,7 +279,7 @@ export const Header: React.FC<HeaderProps> = ({
                           setIsUserMenuOpen(false);
                           openSetupModal();
                         }}
-                        className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold text-zinc-800 hover:bg-zinc-100 flex items-center gap-2"
+                        className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center gap-2"
                       >
                         <Settings className="w-3.5 h-3.5" />
                         <span>Firebase Settings</span>
@@ -274,7 +290,7 @@ export const Header: React.FC<HeaderProps> = ({
                           setIsUserMenuOpen(false);
                           logOut();
                         }}
-                        className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-700 hover:bg-rose-50 flex items-center gap-2"
+                        className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 flex items-center gap-2"
                       >
                         <LogOut className="w-3.5 h-3.5" />
                         <span>Sign Out</span>
@@ -287,7 +303,7 @@ export const Header: React.FC<HeaderProps> = ({
               /* Google Sign In Button */
               <button
                 onClick={signIn}
-                className="btn-brutal flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black font-bold text-xs border-2 border-black shadow-brutal hover:bg-zinc-50"
+                className="btn-brutal flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-[#1a1a22] text-black dark:text-white font-bold text-xs border-2 border-black dark:border-zinc-700 shadow-brutal hover:bg-zinc-50 dark:hover:bg-zinc-800"
                 title="Sign in with Google to sync your data securely"
               >
                 <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">

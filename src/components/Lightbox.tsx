@@ -76,21 +76,21 @@ export const Lightbox: React.FC<LightboxProps> = ({
       onClick={onClose}
     >
       <div 
-        className="relative max-w-6xl w-full bg-white border-[3px] border-black rounded-2xl shadow-brutal-xl overflow-hidden flex flex-col max-h-[95vh]"
+        className="relative max-w-6xl w-full bg-white dark:bg-[#181820] border-[3px] border-black dark:border-zinc-700 rounded-2xl shadow-brutal-xl overflow-hidden flex flex-col max-h-[95vh] transition-colors"
         onClick={e => e.stopPropagation()}
       >
         {/* Top Header Bar */}
-        <div className="px-5 py-3 border-b-[2.5px] border-black bg-white flex items-center justify-between gap-3 shrink-0">
+        <div className="px-5 py-3 border-b-[2.5px] border-black dark:border-zinc-700 bg-white dark:bg-[#181820] flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="px-2 py-0.5 rounded bg-brutal-yellow border-2 border-black font-mono font-bold text-[11px] uppercase shadow-[1.5px_1.5px_0_#000] shrink-0">
+            <span className="px-2 py-0.5 rounded bg-brutal-yellow text-black border-2 border-black font-mono font-bold text-[11px] uppercase shadow-[1.5px_1.5px_0_#000] shrink-0">
               {pin.pinStyle.replace('-', ' ')}
             </span>
-            <h2 className="text-base sm:text-lg font-black text-black tracking-tight truncate">
+            <h2 className="text-base sm:text-lg font-black text-black dark:text-white tracking-tight truncate">
               {pin.title}
             </h2>
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="p-1 rounded border border-black/40 hover:border-black hover:bg-zinc-100 text-zinc-700 hover:text-black shrink-0"
+              className="p-1 rounded border border-black/40 hover:border-black dark:border-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white shrink-0"
               title="Edit pin name and details"
             >
               <Edit3 className="w-3.5 h-3.5" />
@@ -103,7 +103,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
               download={`${pin.title || 'pin-image'}.png`}
               target="_blank"
               rel="noreferrer"
-              className="btn-brutal px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-black font-bold text-xs border-2 border-black shadow-brutal flex items-center gap-1.5"
+              className="btn-brutal px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-black dark:text-white font-bold text-xs border-2 border-black dark:border-zinc-600 shadow-brutal flex items-center gap-1.5"
               title="Download full image"
             >
               <Download className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -124,28 +124,28 @@ export const Lightbox: React.FC<LightboxProps> = ({
         {/* Modal Main Area: Shows Complete Image Full Above Page */}
         <div className="flex-1 overflow-y-auto flex flex-col">
           {/* Complete Image Full Preview Canvas */}
-          <div className="flex-1 bg-[#faf8ff] p-4 sm:p-6 flex items-center justify-center min-h-[360px]">
+          <div className="flex-1 bg-[#faf8ff] dark:bg-[#0e0e13] p-4 sm:p-6 flex items-center justify-center min-h-[360px]">
             <img
               src={pin.imageUrl}
               alt={pin.title}
-              className="max-h-[72vh] w-auto max-w-full object-contain rounded-xl border-[2.5px] border-black shadow-brutal-lg bg-white"
+              className="max-h-[72vh] w-auto max-w-full object-contain rounded-xl border-[2.5px] border-black dark:border-zinc-700 shadow-brutal-lg bg-white dark:bg-[#121218]"
             />
           </div>
 
           {/* Details / Edit Drawer */}
-          <div className="border-t-[2.5px] border-black bg-white p-4 sm:p-5">
+          <div className="border-t-[2.5px] border-black dark:border-zinc-700 bg-white dark:bg-[#181820] p-4 sm:p-5 text-black dark:text-white">
             {isEditing ? (
-              <form onSubmit={handleSaveEdit} className="space-y-3 max-w-3xl mx-auto bg-purple-50 p-4 rounded-xl border-2 border-black">
+              <form onSubmit={handleSaveEdit} className="space-y-3 max-w-3xl mx-auto bg-purple-50 dark:bg-zinc-900/90 p-4 rounded-xl border-2 border-black dark:border-zinc-700 shadow-[3px_3px_0_#000]">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black uppercase text-black tracking-wider">
+                  <span className="text-xs font-black uppercase text-black dark:text-white tracking-wider">
                     ✏️ Edit Pin Details
                   </span>
-                  <span className="text-[11px] font-mono text-zinc-500">Press Save when done</span>
+                  <span className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">Press Save when done</span>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-black mb-1">
-                    Pin Name <span className="text-rose-600">*</span>
+                  <label className="block text-xs font-black uppercase tracking-wider text-black dark:text-zinc-300 mb-1">
+                    Pin Name <span className="text-rose-600 dark:text-rose-400">*</span>
                   </label>
                   <input
                     type="text"
@@ -153,13 +153,13 @@ export const Lightbox: React.FC<LightboxProps> = ({
                     onChange={e => setEditedTitle(e.target.value)}
                     placeholder="Enter pin name..."
                     autoFocus
-                    className="w-full text-sm font-bold p-2 border-2 border-black rounded-lg bg-white outline-none"
+                    className="w-full text-sm font-bold p-2 border-2 border-black dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-950 text-black dark:text-white outline-none focus:border-brutal-purple"
                   />
                 </div>
 
                 {/* Attachment Style in Lightbox Edit */}
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-black mb-1">
+                  <label className="block text-xs font-black uppercase tracking-wider text-black dark:text-zinc-300 mb-1">
                     Attachment Style
                   </label>
                   <div className="flex flex-wrap gap-1.5">
@@ -168,10 +168,10 @@ export const Lightbox: React.FC<LightboxProps> = ({
                         type="button"
                         key={item.id}
                         onClick={() => setEditedPinStyle(item.id)}
-                        className={`px-2 py-1 rounded text-xs font-bold border border-black flex items-center gap-1.5 ${
+                        className={`px-2 py-1 rounded text-xs font-bold border border-black dark:border-zinc-600 flex items-center gap-1.5 transition-all ${
                           editedPinStyle === item.id
-                            ? 'bg-black text-white'
-                            : 'bg-white text-black hover:bg-zinc-100'
+                            ? 'bg-black text-white dark:bg-zinc-100 dark:text-black shadow-[2px_2px_0_#000]'
+                            : 'bg-white text-black hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700'
                         }`}
                       >
                         <span className={`w-3 h-3 border border-black ${item.preview}`} />
@@ -182,7 +182,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-black mb-1">
+                  <label className="block text-xs font-black uppercase tracking-wider text-black dark:text-zinc-300 mb-1">
                     Caption
                   </label>
                   <textarea
@@ -190,12 +190,12 @@ export const Lightbox: React.FC<LightboxProps> = ({
                     value={editedCaption}
                     onChange={e => setEditedCaption(e.target.value)}
                     placeholder="Enter image caption..."
-                    className="w-full text-xs font-medium p-2 border-2 border-black rounded-lg bg-white outline-none resize-none"
+                    className="w-full text-xs font-medium p-2 border-2 border-black dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-950 text-black dark:text-white outline-none resize-none focus:border-brutal-purple"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-black mb-1">
+                  <label className="block text-xs font-black uppercase tracking-wider text-black dark:text-zinc-300 mb-1">
                     Sticky Note
                   </label>
                   <textarea
@@ -203,7 +203,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                     value={editedNote}
                     onChange={e => setEditedNote(e.target.value)}
                     placeholder="Enter notes or todos..."
-                    className="w-full text-xs font-mono p-2 border-2 border-black rounded-lg bg-amber-50 outline-none resize-none"
+                    className="w-full text-xs font-mono p-2 border-2 border-black dark:border-zinc-700 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-black dark:text-amber-200 outline-none resize-none focus:border-amber-400"
                   />
                 </div>
 
@@ -217,14 +217,14 @@ export const Lightbox: React.FC<LightboxProps> = ({
                       setEditedPinStyle(pin.pinStyle);
                       setIsEditing(false);
                     }}
-                    className="btn-brutal px-3 py-1.5 text-xs font-bold border-2 border-black rounded-lg bg-zinc-100 hover:bg-zinc-200"
+                    className="btn-brutal px-3 py-1.5 text-xs font-bold border-2 border-black dark:border-zinc-600 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-black dark:text-white"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={!editedTitle.trim()}
-                    className="btn-brutal px-4 py-1.5 text-xs font-black border-2 border-black rounded-lg bg-brutal-purple text-white hover:bg-brutal-purple-hover disabled:opacity-50"
+                    className="btn-brutal px-4 py-1.5 text-xs font-black border-2 border-black dark:border-zinc-600 rounded-lg bg-brutal-purple text-white hover:bg-brutal-purple-hover disabled:opacity-50"
                   >
                     Save Changes
                   </button>
@@ -234,12 +234,12 @@ export const Lightbox: React.FC<LightboxProps> = ({
               <div className="flex flex-col md:flex-row items-start justify-between gap-4">
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-black text-black tracking-tight">
+                    <h3 className="text-lg font-black text-black dark:text-white tracking-tight">
                       {pin.title}
                     </h3>
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="px-2 py-0.5 rounded bg-zinc-100 hover:bg-zinc-200 border border-black/40 text-xs font-bold text-zinc-700 flex items-center gap-1"
+                      className="px-2 py-0.5 rounded bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 border border-black/40 dark:border-zinc-600 text-xs font-bold text-zinc-700 dark:text-zinc-200 flex items-center gap-1"
                       title="Edit pin name"
                     >
                       <Edit3 className="w-3 h-3" />
@@ -248,28 +248,28 @@ export const Lightbox: React.FC<LightboxProps> = ({
                   </div>
 
                   {pin.caption && (
-                    <p className="text-xs sm:text-sm text-zinc-800 font-medium leading-relaxed max-w-3xl">
+                    <p className="text-xs sm:text-sm text-zinc-800 dark:text-zinc-300 font-medium leading-relaxed max-w-3xl">
                       {pin.caption}
                     </p>
                   )}
 
                   {pin.note && (
-                    <div className="inline-flex items-center gap-1.5 p-2 rounded-lg bg-amber-100 border border-black text-xs font-mono text-zinc-900 shadow-[1.5px_1.5px_0_#000]">
-                      <StickyNote className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                    <div className="inline-flex items-center gap-1.5 p-2 rounded-lg bg-amber-100 dark:bg-amber-950/60 border border-black dark:border-amber-700 text-xs font-mono text-zinc-900 dark:text-amber-200 shadow-[1.5px_1.5px_0_#000]">
+                      <StickyNote className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 shrink-0" />
                       <span>{pin.note}</span>
                     </div>
                   )}
 
                   <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <span className="text-xs font-mono text-zinc-500 flex items-center gap-1 mr-2">
-                      <Calendar className="w-3 h-3 text-black" />
+                    <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400 flex items-center gap-1 mr-2">
+                      <Calendar className="w-3 h-3 text-black dark:text-zinc-400" />
                       Added {formattedDate}
                     </span>
 
                     {pin.tags && pin.tags.map(tag => (
                       <span
                         key={tag}
-                        className="px-2 py-0.5 text-xs font-mono font-bold rounded-md bg-purple-100 border border-black/60 text-brutal-purple"
+                        className="px-2 py-0.5 text-xs font-mono font-bold rounded-md bg-purple-100 dark:bg-purple-950/70 border border-black/60 dark:border-purple-800 text-brutal-purple dark:text-purple-300"
                       >
                         #{tag}
                       </span>
@@ -280,8 +280,8 @@ export const Lightbox: React.FC<LightboxProps> = ({
                 {/* Delete button with confirmation */}
                 <div className="shrink-0 flex items-center gap-2 self-end md:self-center">
                   {isConfirmingDelete ? (
-                    <div className="flex items-center gap-1.5 bg-rose-100 border-2 border-black p-1 rounded-lg shadow-brutal animate-fadeIn">
-                      <span className="text-xs font-bold text-rose-800 px-1">Delete this pin?</span>
+                    <div className="flex items-center gap-1.5 bg-rose-100 dark:bg-rose-950/80 border-2 border-black dark:border-rose-800 p-1 rounded-lg shadow-brutal animate-fadeIn">
+                      <span className="text-xs font-bold text-rose-800 dark:text-rose-200 px-1">Delete this pin?</span>
                       <button
                         onClick={() => {
                           onDelete(pin.id);
@@ -293,7 +293,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                       </button>
                       <button
                         onClick={() => setIsConfirmingDelete(false)}
-                        className="btn-brutal px-2 py-1 bg-zinc-200 text-black rounded font-bold text-xs"
+                        className="btn-brutal px-2 py-1 bg-zinc-200 dark:bg-zinc-800 text-black dark:text-white rounded font-bold text-xs"
                       >
                         Cancel
                       </button>
@@ -301,7 +301,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                   ) : (
                     <button
                       onClick={() => setIsConfirmingDelete(true)}
-                      className="btn-brutal py-2 px-3 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-900 font-bold text-xs border-2 border-black shadow-brutal flex items-center gap-1.5"
+                      className="btn-brutal py-2 px-3 rounded-lg bg-rose-100 hover:bg-rose-200 dark:bg-rose-950/50 dark:hover:bg-rose-900/60 text-rose-900 dark:text-rose-200 font-bold text-xs border-2 border-black dark:border-rose-900 shadow-brutal flex items-center gap-1.5"
                     >
                       <Trash2 className="w-3.5 h-3.5 stroke-[2.5]" />
                       <span>Delete Pin</span>

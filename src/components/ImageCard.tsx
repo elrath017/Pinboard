@@ -112,7 +112,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({
       onDragOver={e => onDragOver(e, index)}
       onDragEnd={onDragEnd}
       style={cardFlexStyle}
-      className="group relative bg-white border-[2.5px] border-black rounded-xl shadow-[4px_4px_0_#000] hover:shadow-[6px_6px_0_#000] transition-all duration-150 flex flex-col cursor-pointer select-none p-3 pt-4 shrink-0 max-w-full"
+      className="group relative bg-white dark:bg-[#181820] border-[2.5px] border-black dark:border-zinc-700 rounded-xl shadow-[4px_4px_0_#000] hover:shadow-[6px_6px_0_#000] transition-all duration-150 flex flex-col cursor-pointer select-none p-3 pt-4 shrink-0 max-w-full"
       onClick={() => onOpenLightbox(pin)}
     >
       {/* Top Attachment: Strictly matches selected pinStyle (Tape Strip vs Specific Color Pin) */}
@@ -151,7 +151,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({
       >
         <button
           onClick={() => setIsEditing(true)}
-          className="p-1 rounded bg-white/95 border border-black hover:bg-yellow-100 text-black text-xs shadow-[1px_1px_0_#000]"
+          className="p-1 rounded bg-white/95 dark:bg-zinc-800 border border-black dark:border-zinc-600 hover:bg-yellow-100 dark:hover:bg-zinc-700 text-black dark:text-white text-xs shadow-[1px_1px_0_#000]"
           title="Edit pin name & attachment"
         >
           <Edit3 className="w-3.5 h-3.5" />
@@ -159,14 +159,14 @@ export const ImageCard: React.FC<ImageCardProps> = ({
 
         <button
           onClick={() => onOpenLightbox(pin)}
-          className="p-1 rounded bg-white/95 border border-black hover:bg-zinc-100 text-black text-xs shadow-[1px_1px_0_#000]"
+          className="p-1 rounded bg-white/95 dark:bg-zinc-800 border border-black dark:border-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-black dark:text-white text-xs shadow-[1px_1px_0_#000]"
           title="View full size image"
         >
           <Maximize2 className="w-3.5 h-3.5" />
         </button>
 
         {isConfirmingDelete ? (
-          <div className="flex items-center gap-0.5 bg-rose-100 border border-black p-0.5 rounded shadow-[1px_1px_0_#000]">
+          <div className="flex items-center gap-0.5 bg-rose-100 dark:bg-rose-950 border border-black dark:border-rose-700 p-0.5 rounded shadow-[1px_1px_0_#000]">
             <button
               onClick={() => onDelete(pin.id)}
               className="p-0.5 bg-rose-500 text-white rounded"
@@ -176,7 +176,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({
             </button>
             <button
               onClick={() => setIsConfirmingDelete(false)}
-              className="p-0.5 bg-zinc-200 text-black rounded"
+              className="p-0.5 bg-zinc-200 dark:bg-zinc-700 text-black dark:text-white rounded"
               title="Cancel"
             >
               <X className="w-3 h-3 stroke-[3]" />
@@ -185,7 +185,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({
         ) : (
           <button
             onClick={() => setIsConfirmingDelete(true)}
-            className="p-1 rounded bg-white/95 border border-black hover:bg-rose-100 text-rose-600 text-xs shadow-[1px_1px_0_#000]"
+            className="p-1 rounded bg-white/95 dark:bg-zinc-800 border border-black dark:border-zinc-600 hover:bg-rose-100 dark:hover:bg-rose-950 text-rose-600 dark:text-rose-400 text-xs shadow-[1px_1px_0_#000]"
             title="Delete pin"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -194,7 +194,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({
       </div>
 
       {/* Image Container: Never crop images, natural aspect ratio */}
-      <div className="border-2 border-black rounded-lg overflow-hidden bg-white mb-2.5 flex items-center justify-center">
+      <div className="border-2 border-black dark:border-zinc-700 rounded-lg overflow-hidden bg-white dark:bg-[#101015] mb-2.5 flex items-center justify-center">
         <img
           src={pin.imageUrl}
           alt={pin.title}
@@ -215,10 +215,10 @@ export const ImageCard: React.FC<ImageCardProps> = ({
           <form 
             onSubmit={handleSaveEdit} 
             onClick={e => e.stopPropagation()} 
-            className="space-y-2 bg-purple-50 p-2.5 rounded-lg border-2 border-black"
+            className="space-y-2 bg-purple-50 dark:bg-purple-950/40 p-2.5 rounded-lg border-2 border-black dark:border-purple-600 text-black dark:text-white"
           >
             <div>
-              <label className="block text-[10px] font-black uppercase text-black mb-0.5">
+              <label className="block text-[10px] font-black uppercase text-black dark:text-zinc-200 mb-0.5">
                 Pin Name
               </label>
               <input
@@ -227,13 +227,13 @@ export const ImageCard: React.FC<ImageCardProps> = ({
                 onChange={e => setEditedTitle(e.target.value)}
                 placeholder="Pin name..."
                 autoFocus
-                className="w-full text-xs font-bold p-1 border-2 border-black rounded bg-white outline-none"
+                className="w-full text-xs font-bold p-1 border-2 border-black dark:border-zinc-600 rounded bg-white dark:bg-zinc-900 text-black dark:text-white outline-none"
               />
             </div>
 
             {/* Attachment Style Picker */}
             <div>
-              <label className="block text-[10px] font-black uppercase text-black mb-1">
+              <label className="block text-[10px] font-black uppercase text-black dark:text-zinc-200 mb-1">
                 Attachment Style
               </label>
               <div className="flex flex-wrap gap-1">
@@ -242,10 +242,10 @@ export const ImageCard: React.FC<ImageCardProps> = ({
                     type="button"
                     key={item.id}
                     onClick={() => setEditedPinStyle(item.id)}
-                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold border border-black flex items-center gap-1 ${
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold border border-black dark:border-zinc-600 flex items-center gap-1 ${
                       editedPinStyle === item.id
-                        ? 'bg-black text-white'
-                        : 'bg-white text-black hover:bg-zinc-100'
+                        ? 'bg-black dark:bg-zinc-200 text-white dark:text-black'
+                        : 'bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700'
                     }`}
                   >
                     <span className={`w-2.5 h-2.5 border border-black ${item.preview}`} />
@@ -259,13 +259,13 @@ export const ImageCard: React.FC<ImageCardProps> = ({
               <button
                 type="button"
                 onClick={handleCancelEdit}
-                className="px-2 py-0.5 text-[10px] font-bold border border-black rounded bg-zinc-100"
+                className="px-2 py-0.5 text-[10px] font-bold border border-black dark:border-zinc-600 rounded bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-2 py-0.5 text-[10px] font-bold border border-black rounded bg-brutal-purple text-white"
+                className="px-2 py-0.5 text-[10px] font-bold border border-black rounded bg-brutal-purple text-white hover:bg-brutal-purple-hover"
               >
                 Save
               </button>
@@ -273,10 +273,10 @@ export const ImageCard: React.FC<ImageCardProps> = ({
           </form>
         ) : (
           <>
-            <h3 className="font-extrabold text-sm sm:text-base text-black tracking-tight leading-snug">
+            <h3 className="font-extrabold text-sm sm:text-base text-black dark:text-white tracking-tight leading-snug">
               {pin.title}
             </h3>
-            <p className="text-xs font-semibold text-zinc-500">
+            <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
               Added {formattedDate}
             </p>
           </>

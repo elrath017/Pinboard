@@ -363,7 +363,7 @@ export function App() {
       onDragOver={handleWindowDragOver}
       onDragLeave={handleWindowDragLeave}
       onDrop={handleWindowDrop}
-      className="min-h-screen bg-pinboard-grid text-zinc-900 flex flex-col relative selection:bg-brutal-purple-light selection:text-brutal-purple"
+      className="min-h-screen bg-pinboard-grid text-zinc-900 dark:text-zinc-100 flex flex-col relative selection:bg-brutal-purple-light selection:text-brutal-purple transition-colors"
     >
       {/* Drag Over Screen Overlay */}
       {isWindowDragging && (
@@ -384,12 +384,12 @@ export function App() {
 
       {/* Auth Error Banner if domain unauthorized or config missing */}
       {authError && (
-        <div className="bg-rose-100 border-b-2 border-black px-4 py-2 text-xs font-bold text-rose-950 flex items-center justify-between z-40 shadow-[0_2px_0_#000]">
+        <div className="bg-rose-100 dark:bg-rose-950/80 border-b-2 border-black dark:border-rose-900 px-4 py-2 text-xs font-bold text-rose-950 dark:text-rose-200 flex items-center justify-between z-40 shadow-[0_2px_0_#000]">
           <div className="flex items-center gap-2 mx-auto">
-            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 stroke-[2.5]" />
+            <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 stroke-[2.5]" />
             <span>{authError}</span>
           </div>
-          <button onClick={clearAuthError} className="p-1 hover:bg-rose-200 rounded">
+          <button onClick={clearAuthError} className="p-1 hover:bg-rose-200 dark:hover:bg-rose-900 rounded">
             <X className="w-4 h-4 stroke-[2.5]" />
           </button>
         </div>
@@ -462,7 +462,7 @@ export function App() {
       />
 
       {/* Neo-brutalist Footer */}
-      <footer className="w-full border-t-[2.5px] border-black bg-white py-6 px-6 text-center text-xs font-mono font-bold text-zinc-700">
+      <footer className="w-full border-t-[2.5px] border-black dark:border-zinc-800 bg-white dark:bg-[#121217] py-6 px-6 text-center text-xs font-mono font-bold text-zinc-700 dark:text-zinc-400 transition-colors">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-brutal-green border border-black" />

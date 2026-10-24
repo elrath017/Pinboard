@@ -6,18 +6,34 @@
   color-scheme: light;
 }
 
+.dark {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: #faf8ff;
   color: #18181b;
   overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dark body {
+  background-color: #0c0c10;
+  color: #f4f4f5;
 }
 
 /* Neo-Brutalist Dot Grid Pinboard Background */
 .bg-pinboard-grid {
   background-color: #faf8ff;
   background-image: radial-gradient(#d8d4f0 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+}
+
+.dark .bg-pinboard-grid {
+  background-color: #0c0c10;
+  background-image: radial-gradient(#27272a 1.5px, transparent 1.5px);
   background-size: 22px 22px;
 }
 
@@ -80,6 +96,16 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #8b5cf6;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #141419;
+  border-left: 2px solid #27272a;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #7c3aed;
+  border: 2px solid #3f3f46;
 }
 
 /* Button & Card interactive micro-interactions */

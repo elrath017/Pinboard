@@ -76,10 +76,10 @@ export const FirebaseSetupModal: React.FC<FirebaseSetupModalProps> = ({ isOpen, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
-      <div className="bg-white border-[3px] border-black rounded-2xl shadow-brutal-lg max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden my-auto">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+      <div className="bg-white dark:bg-[#181820] border-[3px] border-black dark:border-zinc-700 rounded-2xl shadow-brutal-xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden my-auto transition-colors">
         {/* Header */}
-        <div className="bg-[#8b5cf6] text-white p-4 sm:p-5 border-b-[2.5px] border-black flex items-center justify-between">
+        <div className="bg-[#8b5cf6] text-white p-4 sm:p-5 border-b-[2.5px] border-black dark:border-zinc-700 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-[#fde047] text-black border-2 border-black shadow-[2px_2px_0_#000] flex items-center justify-center">
               <Cloud className="w-5 h-5 stroke-[2.5]" />
@@ -95,28 +95,28 @@ export const FirebaseSetupModal: React.FC<FirebaseSetupModalProps> = ({ isOpen, 
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg bg-black text-white hover:bg-zinc-800 flex items-center justify-center border-2 border-black"
+            className="w-8 h-8 rounded-lg bg-black/60 hover:bg-black dark:bg-zinc-800 dark:hover:bg-zinc-700 text-white flex items-center justify-center border-2 border-black dark:border-zinc-600"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-5 sm:p-6 overflow-y-auto space-y-6 text-sm">
+        <div className="p-5 sm:p-6 overflow-y-auto space-y-6 text-sm bg-white dark:bg-[#181820]">
           {/* Quick Guide */}
-          <div className="bg-[#fef9c3] border-2 border-black rounded-xl p-4 shadow-[2px_2px_0_#000]">
-            <h3 className="font-black text-black flex items-center gap-1.5 mb-2">
+          <div className="bg-[#fef9c3] dark:bg-amber-950/30 border-2 border-black dark:border-amber-700/80 rounded-xl p-4 shadow-[2px_2px_0_#000]">
+            <h3 className="font-black text-black dark:text-amber-200 flex items-center gap-1.5 mb-2">
               <HelpCircle className="w-4 h-4 stroke-[2.5]" />
               Quick 3-Minute Firebase Setup:
             </h3>
-            <ol className="list-decimal list-inside space-y-1.5 text-xs font-semibold text-zinc-800 leading-relaxed">
+            <ol className="list-decimal list-inside space-y-1.5 text-xs font-semibold text-zinc-800 dark:text-zinc-200 leading-relaxed">
               <li>
                 Create a project at{' '}
                 <a
                   href="https://console.firebase.google.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-[#8b5cf6] underline font-bold inline-flex items-center gap-0.5"
+                  className="text-[#8b5cf6] dark:text-purple-300 underline font-bold inline-flex items-center gap-0.5"
                 >
                   Firebase Console <ExternalLink className="w-3 h-3" />
                 </a>
@@ -133,7 +133,7 @@ export const FirebaseSetupModal: React.FC<FirebaseSetupModalProps> = ({ isOpen, 
           {/* Form */}
           <form onSubmit={handleSave} className="space-y-4">
             <div>
-              <label className="block text-xs font-black uppercase text-black mb-1">
+              <label className="block text-xs font-black uppercase text-black dark:text-zinc-200 mb-1">
                 Paste Config Object (Optional quick auto-fill)
               </label>
               <textarea
@@ -141,13 +141,13 @@ export const FirebaseSetupModal: React.FC<FirebaseSetupModalProps> = ({ isOpen, 
                 placeholder='const firebaseConfig = { apiKey: "...", ... };'
                 value={jsonPaste}
                 onChange={e => handleJsonPaste(e.target.value)}
-                className="w-full bg-[#faf8ff] border-2 border-black rounded-lg p-2 font-mono text-xs outline-none"
+                className="w-full bg-[#faf8ff] dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 rounded-lg p-2 font-mono text-xs text-black dark:text-white outline-none focus:border-brutal-purple"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-black uppercase text-black mb-0.5">
+                <label className="block text-[11px] font-black uppercase text-black dark:text-zinc-200 mb-0.5">
                   apiKey *
                 </label>
                 <input
@@ -156,12 +156,12 @@ export const FirebaseSetupModal: React.FC<FirebaseSetupModalProps> = ({ isOpen, 
                   value={apiKey}
                   onChange={e => setApiKey(e.target.value)}
                   placeholder="AIzaSy..."
-                  className="w-full bg-[#faf8ff] border-2 border-black rounded-lg p-2 font-mono text-xs outline-none"
+                  className="w-full bg-[#faf8ff] dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 rounded-lg p-2 font-mono text-xs text-black dark:text-white outline-none focus:border-brutal-purple"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-black uppercase text-black mb-0.5">
+                <label className="block text-[11px] font-black uppercase text-black dark:text-zinc-200 mb-0.5">
                   authDomain
                 </label>
                 <input
@@ -169,12 +169,12 @@ export const FirebaseSetupModal: React.FC<FirebaseSetupModalProps> = ({ isOpen, 
                   value={authDomain}
                   onChange={e => setAuthDomain(e.target.value)}
                   placeholder="my-app.firebaseapp.com"
-                  className="w-full bg-[#faf8ff] border-2 border-black rounded-lg p-2 font-mono text-xs outline-none"
+                  className="w-full bg-[#faf8ff] dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 rounded-lg p-2 font-mono text-xs text-black dark:text-white outline-none focus:border-brutal-purple"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-black uppercase text-black mb-0.5">
+                <label className="block text-[11px] font-black uppercase text-black dark:text-zinc-200 mb-0.5">
                   projectId *
                 </label>
                 <input
@@ -183,12 +183,12 @@ export const FirebaseSetupModal: React.FC<FirebaseSetupModalProps> = ({ isOpen, 
                   value={projectId}
                   onChange={e => setProjectId(e.target.value)}
                   placeholder="my-pinboard-app"
-                  className="w-full bg-[#faf8ff] border-2 border-black rounded-lg p-2 font-mono text-xs outline-none"
+                  className="w-full bg-[#faf8ff] dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 rounded-lg p-2 font-mono text-xs text-black dark:text-white outline-none focus:border-brutal-purple"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-black uppercase text-black mb-0.5">
+                <label className="block text-[11px] font-black uppercase text-black dark:text-zinc-200 mb-0.5">
                   appId
                 </label>
                 <input
@@ -196,19 +196,19 @@ export const FirebaseSetupModal: React.FC<FirebaseSetupModalProps> = ({ isOpen, 
                   value={appId}
                   onChange={e => setAppId(e.target.value)}
                   placeholder="1:123456789:web:abcdef..."
-                  className="w-full bg-[#faf8ff] border-2 border-black rounded-lg p-2 font-mono text-xs outline-none"
+                  className="w-full bg-[#faf8ff] dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 rounded-lg p-2 font-mono text-xs text-black dark:text-white outline-none focus:border-brutal-purple"
                 />
               </div>
             </div>
 
             {/* Netlify Note */}
-            <div className="p-3 bg-purple-50 border-2 border-black rounded-xl text-xs font-medium text-zinc-800">
-              <span className="font-bold text-black">🚀 For Production on Netlify:</span>
+            <div className="p-3 bg-purple-50 dark:bg-purple-950/40 border-2 border-black dark:border-purple-800 rounded-xl text-xs font-medium text-zinc-800 dark:text-purple-100">
+              <span className="font-bold text-black dark:text-white">🚀 For Production on Netlify:</span>
               <p className="mt-1">
                 You can also add these as Environment Variables directly in Netlify under{' '}
                 <b>Site configuration &gt; Environment variables</b>:
               </p>
-              <code className="block mt-1 font-mono text-[10px] bg-white p-2 rounded border border-black select-all">
+              <code className="block mt-1 font-mono text-[10px] bg-white dark:bg-zinc-900 p-2 rounded border border-black dark:border-zinc-700 select-all text-black dark:text-zinc-200">
                 VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID, VITE_FIREBASE_STORAGE_BUCKET, VITE_FIREBASE_APP_ID
               </code>
             </div>
@@ -219,7 +219,7 @@ export const FirebaseSetupModal: React.FC<FirebaseSetupModalProps> = ({ isOpen, 
                 <button
                   type="button"
                   onClick={clearLocalFirebaseConfig}
-                  className="px-3 py-2 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-xs border-2 border-black shadow-[2px_2px_0_#000] flex items-center gap-1.5"
+                  className="px-3 py-2 rounded-lg bg-rose-100 hover:bg-rose-200 dark:bg-rose-950/50 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-200 font-bold text-xs border-2 border-black dark:border-rose-900 shadow-[2px_2px_0_#000] flex items-center gap-1.5"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Reset Local Config</span>
@@ -230,13 +230,13 @@ export const FirebaseSetupModal: React.FC<FirebaseSetupModalProps> = ({ isOpen, 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-black font-bold text-xs border-2 border-black"
+                  className="px-4 py-2 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-black dark:text-white font-bold text-xs border-2 border-black dark:border-zinc-600"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn-brutal px-5 py-2 rounded-lg bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-black text-xs border-2 border-black shadow-brutal flex items-center gap-1.5"
+                  className="btn-brutal px-5 py-2 rounded-lg bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-black text-xs border-2 border-black dark:border-zinc-600 shadow-brutal flex items-center gap-1.5"
                 >
                   <Save className="w-3.5 h-3.5 stroke-[2.5]" />
                   <span>Save & Connect</span>

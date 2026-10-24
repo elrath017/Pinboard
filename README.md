@@ -8,14 +8,13 @@ A responsive, single-page web app built with **React**, **Vite**, and **Tailwind
 
 ## 📸 Screenshots & Previews
 
-| Full Visual Canvas & Fixed Tasks Tile | Fullscreen Lightbox & Edit |
+| Full Visual Canvas (Light Mode) | Neo-Brutalist Dark Mode |
 | :---: | :---: |
-| ![Pinboard Dashboard](./screenshots/pinboard-dashboard.png) | ![Pinboard Lightbox](./screenshots/pinboard-lightbox.png) |
+| ![Pinboard Dashboard](./screenshots/pinboard-dashboard.png) | ![Pinboard Dark Mode](./screenshots/pinboard-dark-mode.png) |
 
-<p align="center">
-  <b>Multi-File Upload & Attachment Customizer</b><br/>
-  <img src="./screenshots/pinboard-upload.png" alt="Pinboard Upload Modal" width="850" />
-</p>
+| Fullscreen Lightbox & Edit | Multi-File Upload & Attachment Customizer |
+| :---: | :---: |
+| ![Pinboard Lightbox](./screenshots/pinboard-lightbox.png) | ![Pinboard Upload Modal](./screenshots/pinboard-upload.png) |
 
 ---
 
@@ -84,6 +83,14 @@ A responsive, single-page web app built with **React**, **Vite**, and **Tailwind
 ### 4. 💾 Backup & Data Portability
 - **JSON Export**: Download all your image pins, daily tasks, and streak history as a single `.json` file.
 - **JSON Import**: Upload any backup file to restore your entire board state instantly.
+
+### 5. 🌓 Neo-Brutalist Dark Mode
+- **1-Click Header Toggle**: Switch seamlessly between light paper canvas and dark charcoal/midnight themes via the Sun ☀️ / Moon 🌙 button in the header.
+- **Persistent & Adaptive**:
+  - Saved in `localStorage` (`pinboard_theme`).
+  - Automatically respects user OS system color scheme (`prefers-color-scheme`).
+  - Zero initial flicker on page refresh via head pre-hydration script.
+  - Supports `?theme=dark` or `?theme=light` URL query parameters.
 
 ---
 
