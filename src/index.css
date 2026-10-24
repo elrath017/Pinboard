@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #faf8ff;
+  color: #18181b;
+  overflow-x: hidden;
+}
+
+/* Neo-Brutalist Dot Grid Pinboard Background */
+.bg-pinboard-grid {
+  background-color: #faf8ff;
+  background-image: radial-gradient(#d8d4f0 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+}
+
+/* Washi tape strip decoration */
+.washi-tape {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 72px;
+  height: 22px;
+  background-color: #fde047;
+  border: 2px solid #000;
+  box-shadow: 2px 2px 0px #000;
+  opacity: 0.95;
+  z-index: 20;
+}
+
+/* Neo-brutalist pushpin */
+.brutal-pin {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2.5px solid #000;
+  box-shadow: 2px 2px 0px #000;
+  z-index: 20;
+}
+
+.brutal-pin::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 5px;
+  height: 5px;
+  background: white;
+  border-radius: 50%;
+}
+
+/* Custom Neo-Brutalist Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1effa;
+  border-left: 2px solid #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #a78bfa;
+  border: 2px solid #000;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8b5cf6;
+}
+
+/* Button & Card interactive micro-interactions */
+.btn-brutal {
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.btn-brutal:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #000;
+}
+
+.btn-brutal:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px #000;
+}
+
+/* Focus ring in bold purple */
+*:focus-visible {
+  outline: 3px solid #8b5cf6 !important;
+  outline-offset: 2px !important;
+}

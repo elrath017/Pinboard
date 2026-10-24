@@ -1,0 +1,354 @@
+import React, { useState, useRef } from 'react';
+import { X, Upload, Image as ImageIcon, Trash2, Plus, Sparkles, AlertCircle } from 'lucide-react';
+import { PinStyle } from '../types';
+import { compressImage } from '../utils/imageCompressor';
+
+interface UploadModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onAddPins: (pins: Array<{
+    imageUrl: string;
+    title: string;
+    caption?: string;
+    note?: string;
+    tags?: string[];
+    pinStyle: PinStyle;
+  }>) => void;
+}
+
+interface StagedFile {
+  id: string;
+  dataUrl: string;
+  name: string;
+  sizeFormatted: string;
+}
+
+export const UploadModal: React.FC<UploadModalProps> = ({
+  isOpen,
+  onClose,
+  onAddPins,
+}) => {
+  const [stagedFiles, setStagedFiles] = useState<StagedFile[]>([]);
+  const [title, setTitle] = useState('');
+  const [caption, setCaption] = useState('');
+  const [note, setNote] = useState('');
+  const [tagsInput, setTagsInput] = useState('');
+  const [pinStyle, setPinStyle] = useState<PinStyle>('tape');
+  const [isDragging, setIsDragging] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [error, setError] = useState('');
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  if (!isOpen) return null;
+
+  const processFiles = async (files: FileList | File[]) => {
+    setError('');
+    setIsCompressing(true);
+    const newStaged: StagedFile[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (!file.type.startsWith('image/')) {
+        setError('Only valid image files (PNG, JPG, WebP, GIF, SVG) are supported.');
+        continue;
+      }
+
+      try {
+        // Compress / resize image
+        const compressed = await compressImage(file, 1400, 1400, 0.85);
+        const approxSizeKb = Math.round((compressed.length * 3) / 4 / 1024);
+        
+        newStaged.push({
+          id: `staged-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 6)}`,
+          dataUrl: compressed,
+          name: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+          sizeFormatted: `${approxSizeKb} KB`,
+        });
+      } catch (err) {
+        console.error('Error compressing image', err);
+        setError('Failed to process one or more images.');
+      }
+    }
+
+    setStagedFiles(prev => [...prev, ...newStaged]);
+    setIsCompressing(false);
+
+    // Default title from the first image if empty
+    if (!title && newStaged.length > 0) {
+      const first = newStaged[0].name;
+      setTitle(first.charAt(0).toUpperCase() + first.slice(1));
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleRemoveStaged = (id: string) => {
+    setStagedFiles(prev => prev.filter(f => f.id !== id));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (stagedFiles.length === 0) {
+      setError('Please upload at least one image.');
+      return;
+    }
+    if (!title.trim() && stagedFiles.length === 1) {
+      setError('Please provide a title for your image.');
+      return;
+    }
+
+    const tags = tagsInput
+      .split(',')
+      .map(t => t.trim())
+      .filter(Boolean);
+
+    // If multiple images are uploaded at once, create a card for each with shared or auto titles!
+    const newPins = stagedFiles.map((item, idx) => ({
+      imageUrl: item.dataUrl,
+      title: stagedFiles.length === 1 
+        ? title.trim() 
+        : title.trim() 
+          ? `${title.trim()} (#${idx + 1})` 
+          : item.name.charAt(0).toUpperCase() + item.name.slice(1),
+      caption: caption.trim() || undefined,
+      note: note.trim() || undefined,
+      tags: tags.length > 0 ? tags : ['Visual'],
+      pinStyle,
+    }));
+
+    onAddPins(newPins);
+
+    // Reset and close
+    setStagedFiles([]);
+    setTitle('');
+    setCaption('');
+    setNote('');
+    setTagsInput('');
+    setError('');
+    onClose();
+  };
+
+  const pinStylesList: { id: PinStyle; label: string; preview: string }[] = [
+    { id: 'tape', label: 'Washi Tape', preview: 'bg-brutal-yellow' },
+    { id: 'pin-yellow', label: 'Yellow Pin', preview: 'bg-brutal-yellow rounded-full' },
+    { id: 'pin-purple', label: 'Purple Pin', preview: 'bg-brutal-purple rounded-full' },
+    { id: 'pin-red', label: 'Red Pin', preview: 'bg-rose-500 rounded-full' },
+    { id: 'pin-green', label: 'Green Pin', preview: 'bg-brutal-green rounded-full' },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-[2px] animate-fadeIn">
+      <div 
+        className="w-full max-w-xl bg-white border-[3px] border-black rounded-2xl shadow-brutal-lg overflow-hidden flex flex-col max-h-[92vh]"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="px-5 py-4 border-b-[2.5px] border-black bg-brutal-purple text-white flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-brutal-yellow border-2 border-black shadow-[2px_2px_0_#000] flex items-center justify-center text-black font-bold">
+              <ImageIcon className="w-4 h-4 stroke-[2.5]" />
+            </div>
+            <div>
+              <h2 className="text-base font-black tracking-tight text-white">Add Images to Pinboard</h2>
+              <p className="text-xs text-purple-100 font-medium">Multi-upload, drag & drop, and auto-compressed</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 rounded-lg bg-black text-white hover:bg-zinc-800 transition-colors"
+          >
+            <X className="w-5 h-5 stroke-[2.5]" />
+          </button>
+        </div>
+
+        {/* Modal Body */}
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto flex-1">
+          {error && (
+            <div className="p-3 rounded-lg bg-rose-100 border-2 border-black text-rose-900 text-xs font-bold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 stroke-[2.5]" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Drag & Drop Zone */}
+          <div
+            onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className={`border-[2.5px] border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
+              isDragging
+                ? 'border-brutal-purple bg-brutal-purple-light shadow-brutal'
+                : 'border-black hover:border-brutal-purple bg-[#faf8ff] hover:bg-white shadow-[2px_2px_0_#000]'
+            }`}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={e => e.target.files && processFiles(e.target.files)}
+              className="hidden"
+            />
+
+            <div className="flex flex-col items-center justify-center space-y-2">
+              <div className="w-12 h-12 rounded-xl bg-brutal-yellow border-2 border-black shadow-[2px_2px_0_#000] flex items-center justify-center text-black">
+                <Upload className="w-6 h-6 stroke-[2.5]" />
+              </div>
+              <div className="text-sm font-bold text-black">
+                <span className="text-brutal-purple underline decoration-2">Click to select images</span> or drag & drop here
+              </div>
+              <p className="text-xs font-medium text-zinc-500">
+                Supports multiple files (PNG, JPG, WebP, GIF, SVG)
+              </p>
+              {isCompressing && (
+                <div className="text-xs font-bold text-brutal-purple animate-pulse flex items-center gap-1.5 pt-1">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Compressing and optimizing images...
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Staged Images Previews */}
+          {stagedFiles.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-black uppercase text-black tracking-wider">
+                  Selected Images ({stagedFiles.length})
+                </span>
+                <span className="text-[11px] font-mono font-bold text-zinc-500">
+                  Auto-optimized
+                </span>
+              </div>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-40 overflow-y-auto p-2 bg-zinc-50 border-2 border-black rounded-xl">
+                {stagedFiles.map(file => (
+                  <div key={file.id} className="relative group rounded-lg overflow-hidden border-2 border-black aspect-square bg-white shadow-[2px_2px_0_#000]">
+                    <img src={file.dataUrl} alt={file.name} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveStaged(file.id)}
+                      className="absolute top-1 right-1 p-1 rounded bg-rose-500 text-white border border-black hover:bg-rose-600 transition-colors shadow-[1px_1px_0_#000]"
+                      title="Remove image"
+                    >
+                      <Trash2 className="w-3 h-3 stroke-[2.5]" />
+                    </button>
+                    <div className="absolute bottom-0 inset-x-0 bg-black/80 text-[9px] font-mono text-white px-1 py-0.5 truncate text-center">
+                      {file.sizeFormatted}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Title / Caption Input */}
+          <div>
+            <label className="block text-xs font-black uppercase tracking-wider text-black mb-1">
+              Title <span className="text-rose-600">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. System Architecture Diagram"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              className="w-full bg-[#faf8ff] border-2 border-black shadow-[2px_2px_0_#000] focus:shadow-brutal rounded-lg px-3 py-2 text-sm font-semibold text-black placeholder-zinc-400 outline-none transition-all"
+            />
+          </div>
+
+          {/* Caption / Description */}
+          <div>
+            <label className="block text-xs font-black uppercase tracking-wider text-black mb-1">
+              Caption <span className="text-zinc-500 font-normal lowercase">(optional)</span>
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Visual flow of auth workers and database replicas..."
+              value={caption}
+              onChange={e => setCaption(e.target.value)}
+              className="w-full bg-[#faf8ff] border-2 border-black shadow-[2px_2px_0_#000] focus:shadow-brutal rounded-lg px-3 py-2 text-sm font-medium text-black placeholder-zinc-400 outline-none transition-all"
+            />
+          </div>
+
+          {/* Sticky Note */}
+          <div>
+            <label className="block text-xs font-black uppercase tracking-wider text-black mb-1">
+              Sticky Note <span className="text-zinc-500 font-normal lowercase">(optional reminder or todo)</span>
+            </label>
+            <textarea
+              rows={2}
+              placeholder="e.g. Follow up on cache invalidation review by Friday."
+              value={note}
+              onChange={e => setNote(e.target.value)}
+              className="w-full bg-amber-50 border-2 border-black shadow-[2px_2px_0_#000] focus:shadow-brutal rounded-lg px-3 py-2 text-xs font-mono text-black placeholder-zinc-400 outline-none transition-all resize-none"
+            />
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="block text-xs font-black uppercase tracking-wider text-black mb-1">
+              Tags <span className="text-zinc-500 font-normal lowercase">(comma separated)</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Architecture, GitDiagram, Frontend, UI"
+              value={tagsInput}
+              onChange={e => setTagsInput(e.target.value)}
+              className="w-full bg-[#faf8ff] border-2 border-black shadow-[2px_2px_0_#000] focus:shadow-brutal rounded-lg px-3 py-2 text-xs font-mono text-black placeholder-zinc-400 outline-none transition-all"
+            />
+          </div>
+
+          {/* Notice Board Pin / Tape Style */}
+          <div>
+            <label className="block text-xs font-black uppercase tracking-wider text-black mb-2">
+              Pinboard Attachment Style
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {pinStylesList.map(item => (
+                <button
+                  type="button"
+                  key={item.id}
+                  onClick={() => setPinStyle(item.id)}
+                  className={`btn-brutal px-3 py-1.5 rounded-lg border-2 border-black text-xs font-bold flex items-center gap-2 ${
+                    pinStyle === item.id
+                      ? 'bg-black text-white shadow-brutal-sm'
+                      : 'bg-white text-black shadow-[1.5px_1.5px_0_#000] hover:bg-zinc-100'
+                  }`}
+                >
+                  <span className={`w-3.5 h-3.5 border border-black ${item.preview}`} />
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Submit Actions */}
+          <div className="pt-3 border-t-2 border-black flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn-brutal px-4 py-2 rounded-lg bg-zinc-100 text-black font-bold text-xs border-2 border-black shadow-[2px_2px_0_#000] hover:bg-zinc-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={stagedFiles.length === 0}
+              className="btn-brutal px-5 py-2 rounded-lg bg-brutal-purple hover:bg-brutal-purple-hover disabled:opacity-50 text-white font-black text-xs border-2 border-black shadow-brutal flex items-center gap-1.5"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>Pin to Board ({stagedFiles.length})</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
