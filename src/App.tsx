@@ -31,7 +31,7 @@ import {
   subscribeToUserStats,
   saveUserStats,
 } from './firebase/firestoreService';
-import { SAMPLE_PINS } from './utils/sampleData';
+import { SAMPLE_PINS, INITIAL_DEMO_TASKS } from './utils/sampleData';
 import { Sparkles, Layers, AlertTriangle, X } from 'lucide-react';
 
 export function App() {
@@ -55,22 +55,70 @@ export function App() {
       setToastMessage(`☁️ Signed in as ${user.displayName || user.email}! Your data is saved to your account.`);
       setTimeout(() => setToastMessage(null), 4000);
 
-      const unsubPins = subscribeToUserPins(user.uid, cloudPins => {
-        setPins(cloudPins);
-      });
-
-      const unsubTasks = subscribeToUserTasks(user.uid, cloudTasks => {
-        // Also check if daily rollover is needed in the cloud
-        const resetResult = checkAndPerformDailyReset(cloudTasks);
-        setTasks(resetResult.tasks);
-        if (resetResult.didRefresh) {
-          saveUserTasks(user.uid, resetResult.tasks);
+      const unsubPins = subscribeToUserPins(
+        user.uid,
+        async cloudPins => {
+          if (cloudPins && cloudPins.length > 0) {
+            setPins(cloudPins);
+          } else {
+            // New user cloud collection has no pins yet:
+            // Check if user has pins in local storage to preserve/migrate!
+            const localPins = await getStoredPins();
+            const pinsToSeed = localPins && localPins.length > 0 ? localPins : SAMPLE_PINS;
+            setPins(pinsToSeed);
+            saveAllUserPins(user.uid, pinsToSeed).catch(console.warn);
+          }
+        },
+        err => {
+          console.error('Error listening to user pins:', err);
+          getStoredPins().then(loaded => {
+            if (loaded && loaded.length > 0) setPins(loaded);
+            else setPins(SAMPLE_PINS);
+          });
         }
-      });
+      );
 
-      const unsubStats = subscribeToUserStats(user.uid, cloudStats => {
-        setStats(cloudStats);
-      });
+      const unsubTasks = subscribeToUserTasks(
+        user.uid,
+        async cloudTasks => {
+          if (cloudTasks && cloudTasks.length > 0) {
+            const resetResult = checkAndPerformDailyReset(cloudTasks);
+            setTasks(resetResult.tasks);
+            if (resetResult.didRefresh) {
+              saveUserTasks(user.uid, resetResult.tasks);
+            }
+          } else {
+            const localTasks = getStoredTasks();
+            const tasksToSeed = localTasks.length > 0 ? localTasks : INITIAL_DEMO_TASKS;
+            const resetResult = checkAndPerformDailyReset(tasksToSeed);
+            setTasks(resetResult.tasks);
+            saveUserTasks(user.uid, resetResult.tasks).catch(console.warn);
+          }
+        },
+        err => {
+          console.error('Error listening to user tasks:', err);
+          const localTasks = getStoredTasks();
+          const resetResult = checkAndPerformDailyReset(localTasks.length > 0 ? localTasks : INITIAL_DEMO_TASKS);
+          setTasks(resetResult.tasks);
+        }
+      );
+
+      const unsubStats = subscribeToUserStats(
+        user.uid,
+        cloudStats => {
+          if (cloudStats && (cloudStats.streakCount > 0 || cloudStats.lastActiveDate)) {
+            setStats(cloudStats);
+          } else {
+            const localStats = getStoredStats();
+            setStats(localStats);
+            saveUserStats(user.uid, localStats).catch(console.warn);
+          }
+        },
+        err => {
+          console.error('Error listening to user stats:', err);
+          setStats(getStoredStats());
+        }
+      );
 
       return () => {
         unsubPins();

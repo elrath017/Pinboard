@@ -34,6 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -243,10 +244,11 @@ export const Header: React.FC<HeaderProps> = ({
                   className="btn-brutal flex items-center gap-1.5 p-1 rounded-lg bg-white dark:bg-[#1a1a22] border-2 border-black dark:border-zinc-700 shadow-brutal hover:bg-zinc-50 dark:hover:bg-zinc-800"
                   title={`Signed in as ${user.displayName || user.email}`}
                 >
-                  {user.photoURL ? (
+                  {user.photoURL && !avatarError ? (
                     <img
                       src={user.photoURL}
                       alt={user.displayName || 'User'}
+                      onError={() => setAvatarError(true)}
                       className="w-7 h-7 rounded border border-black object-cover"
                     />
                   ) : (

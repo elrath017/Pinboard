@@ -1,6 +1,8 @@
 # Dependencies & build
 node_modules/
 dist/
+dist-ssr/
+*.local
 
 # Environment variables
 .env
@@ -14,6 +16,10 @@ firebase-debug.log*
 firestore-debug.log*
 *.log
 
-# System files
+# Editor & system files
+.vscode/*
+!.vscode/extensions.json
+.idea/
 .DS_Store
 Thumbs.db
+*.tsbuildinfo

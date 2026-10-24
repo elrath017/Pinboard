@@ -45,20 +45,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async currentUser => {
-      setUser(currentUser);
-      if (currentUser) {
-        try {
-          // When a user signs in, ensure their collection is seeded if it's their first time
-          await checkAndSeedUserData(currentUser.uid);
-        } catch (err: any) {
-          console.warn('Could not seed initial user data:', err);
-        }
-      }
+    // Safety timeout: auth state loading must NEVER hang for more than 1.5s
+    const safetyTimer = setTimeout(() => {
       setLoading(false);
-    });
+    }, 1500);
 
-    return () => unsubscribe();
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      currentUser => {
+        clearTimeout(safetyTimer);
+        setUser(currentUser);
+        setLoading(false); // Resolve auth loading immediately!
+
+        // Seed or check initial data asynchronously in background
+        if (currentUser) {
+          checkAndSeedUserData(currentUser.uid).catch(err => {
+            console.warn('Background user seed check:', err);
+          });
+        }
+      },
+      err => {
+        clearTimeout(safetyTimer);
+        console.error('Auth state change error:', err);
+        setLoading(false);
+      }
+    );
+
+    return () => {
+      clearTimeout(safetyTimer);
+      unsubscribe();
+    };
   }, [configured]);
 
   const signIn = async () => {
