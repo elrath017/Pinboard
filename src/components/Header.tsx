@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Download, Upload, Search, CheckSquare, Filter, ChevronDown, Check, X, Cloud, LogOut, User as UserIcon, Settings, Sun, Moon } from 'lucide-react';
+import { Plus, Download, Upload, Search, CheckSquare, Filter, ChevronDown, Check, X, Cloud, LogOut, User as UserIcon, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -39,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const { user, loading: authLoading, signIn, logOut, openSetupModal, isConfigured } = useAuth();
+  const { user, loading: authLoading, signIn, logOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
   // Close dropdown on click outside
@@ -275,24 +275,13 @@ export const Header: React.FC<HeaderProps> = ({
                       </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <button
-                        onClick={() => {
-                          setIsUserMenuOpen(false);
-                          openSetupModal();
-                        }}
-                        className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center gap-2"
-                      >
-                        <Settings className="w-3.5 h-3.5" />
-                        <span>Firebase Settings</span>
-                      </button>
-
+                    <div className="pt-1">
                       <button
                         onClick={() => {
                           setIsUserMenuOpen(false);
                           logOut();
                         }}
-                        className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 flex items-center gap-2"
+                        className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 flex items-center gap-2 transition-colors"
                       >
                         <LogOut className="w-3.5 h-3.5" />
                         <span>Sign Out</span>
