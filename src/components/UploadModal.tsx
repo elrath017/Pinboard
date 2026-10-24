@@ -137,10 +137,12 @@ export const UploadModal: React.FC<UploadModalProps> = ({
 
   const pinStylesList: { id: PinStyle; label: string; preview: string }[] = [
     { id: 'tape', label: 'Washi Tape', preview: 'bg-brutal-yellow' },
-    { id: 'pin-yellow', label: 'Yellow Pin', preview: 'bg-brutal-yellow rounded-full' },
+    { id: 'pin-orange', label: 'Orange Pin', preview: 'bg-orange-400 rounded-full' },
     { id: 'pin-purple', label: 'Purple Pin', preview: 'bg-brutal-purple rounded-full' },
+    { id: 'pin-yellow', label: 'Yellow Pin', preview: 'bg-brutal-yellow rounded-full' },
     { id: 'pin-red', label: 'Red Pin', preview: 'bg-rose-500 rounded-full' },
     { id: 'pin-green', label: 'Green Pin', preview: 'bg-brutal-green rounded-full' },
+    { id: 'pin-blue', label: 'Blue Pin', preview: 'bg-sky-400 rounded-full' },
   ];
 
   return (

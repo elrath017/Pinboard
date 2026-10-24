@@ -11,6 +11,7 @@ export interface ImagePin {
   rotation: number; // -2 to +2 degrees
   pinStyle: PinStyle;
   pinSize?: number; // 14 to 30px
+  aspectRatio?: number; // width / height
   order: number;
 }
 

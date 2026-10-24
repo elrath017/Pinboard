@@ -27,6 +27,7 @@ export const SAMPLE_PINS: ImagePin[] = [
     rotation: -1.2,
     pinStyle: 'pin-orange',
     pinSize: 24,
+    aspectRatio: 640 / 360, // 1.778
     order: 0,
   },
   {
@@ -39,6 +40,7 @@ export const SAMPLE_PINS: ImagePin[] = [
     rotation: 1.0,
     pinStyle: 'pin-purple',
     pinSize: 18,
+    aspectRatio: 400 / 710, // 0.563
     order: 1,
   },
   {
@@ -51,6 +53,7 @@ export const SAMPLE_PINS: ImagePin[] = [
     rotation: -0.9,
     pinStyle: 'pin-orange',
     pinSize: 22,
+    aspectRatio: 1.0,
     order: 2,
   },
   {
@@ -62,6 +65,7 @@ export const SAMPLE_PINS: ImagePin[] = [
     pinnedAt: new Date(2026, 9, 12).getTime(), // Oct 12
     rotation: 1.4,
     pinStyle: 'tape',
+    aspectRatio: 600 / 450, // 1.333
     order: 3,
   },
   {
@@ -74,6 +78,7 @@ export const SAMPLE_PINS: ImagePin[] = [
     rotation: -1.1,
     pinStyle: 'pin-purple',
     pinSize: 16,
+    aspectRatio: 450 / 600, // 0.75
     order: 4,
   },
   {
@@ -86,6 +91,7 @@ export const SAMPLE_PINS: ImagePin[] = [
     rotation: 1.2,
     pinStyle: 'pin-orange',
     pinSize: 25,
+    aspectRatio: 840 / 360, // 2.333
     order: 5,
   }
 ];

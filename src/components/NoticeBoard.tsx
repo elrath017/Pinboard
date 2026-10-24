@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ImagePin } from '../types';
+import { ImagePin, PinStyle } from '../types';
 import { ImageCard } from './ImageCard';
 import { Plus, Sparkles, Filter, X } from 'lucide-react';
 
@@ -7,7 +7,7 @@ interface NoticeBoardProps {
   pins: ImagePin[];
   onOpenLightbox: (pin: ImagePin) => void;
   onDeletePin: (id: string) => void;
-  onUpdatePin: (id: string, updates: { title?: string; caption?: string; note?: string }) => void;
+  onUpdatePin: (id: string, updates: { title?: string; caption?: string; note?: string; pinStyle?: PinStyle }) => void;
   onReorderPins: (reordered: ImagePin[]) => void;
   onOpenUploadModal: () => void;
   onLoadSamples: () => void;
@@ -97,7 +97,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({
         </div>
       )}
 
-      {/* Main Notice Board Area - Responsive Masonry Layout using CSS Columns */}
+      {/* Main Notice Board Area - Flex Wrap layout where card width follows aspect ratio */}
       <div className="flex-1 w-full px-4 sm:px-6 py-6 lg:pr-96">
         {filteredPins.length === 0 ? (
           /* Empty State: friendly message with big "Add your first image" button */
@@ -134,8 +134,8 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({
             </div>
           </div>
         ) : (
-          /* CSS Columns Masonry Layout: natural aspect ratios, no fixed height */
-          <div className="columns-1 sm:columns-2 xl:columns-3 gap-6 [column-fill:_balance]">
+          /* Flex-wrap layout: No fixed number of columns. Width follows image aspect ratio */
+          <div className="flex flex-wrap items-start gap-4 sm:gap-4.5">
             {filteredPins.map((pin, index) => (
               <ImageCard
                 key={pin.id}
@@ -150,10 +150,11 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({
               />
             ))}
 
-            {/* "Drop an image here" dashed card at the end matching demo image */}
+            {/* "Drop an image here" dashed card in flex flow */}
             <div
               onClick={onOpenUploadModal}
-              className="btn-brutal break-inside-avoid mb-6 w-full border-[2.5px] border-dashed border-black rounded-xl p-8 bg-white/60 hover:bg-white text-center cursor-pointer transition-all flex flex-col items-center justify-center space-y-2 group"
+              style={{ flex: '1 1 200px', maxWidth: '300px', minWidth: '160px' }}
+              className="btn-brutal border-[2.5px] border-dashed border-black rounded-xl p-6 bg-white/60 hover:bg-white text-center cursor-pointer transition-all flex flex-col items-center justify-center space-y-2 group min-h-[200px]"
             >
               <div className="w-10 h-10 rounded-lg bg-brutal-purple text-white border-2 border-black flex items-center justify-center shadow-[2px_2px_0_#000] group-hover:scale-105 transition-transform">
                 <Plus className="w-6 h-6 stroke-[3]" />
@@ -162,7 +163,7 @@ export const NoticeBoard: React.FC<NoticeBoardProps> = ({
                 Drop an image here
               </span>
               <p className="text-xs font-semibold text-zinc-500">
-                or click to upload new pin
+                or click to upload
               </p>
             </div>
           </div>

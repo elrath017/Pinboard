@@ -145,8 +145,8 @@ export function App() {
     }
   };
 
-  // Update pin (name/title, caption, note)
-  const handleUpdatePin = async (id: string, updates: { title?: string; caption?: string; note?: string }) => {
+  // Update pin (name/title, caption, note, pinStyle)
+  const handleUpdatePin = async (id: string, updates: { title?: string; caption?: string; note?: string; pinStyle?: PinStyle }) => {
     const updated = pins.map(p => {
       if (p.id === id) {
         return { ...p, ...updates };

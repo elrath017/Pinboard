@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ImagePin } from '../types';
+import { ImagePin, PinStyle } from '../types';
 import { X, Trash2, Edit3, Download, Calendar, Tag, Check, StickyNote, Maximize2 } from 'lucide-react';
 
 interface LightboxProps {
   pin: ImagePin | null;
   onClose: () => void;
   onDelete: (id: string) => void;
-  onUpdatePin: (id: string, updates: { title?: string; caption?: string; note?: string }) => void;
+  onUpdatePin: (id: string, updates: { title?: string; caption?: string; note?: string; pinStyle?: PinStyle }) => void;
 }
 
 export const Lightbox: React.FC<LightboxProps> = ({
@@ -19,6 +19,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
   const [editedTitle, setEditedTitle] = useState('');
   const [editedCaption, setEditedCaption] = useState('');
   const [editedNote, setEditedNote] = useState('');
+  const [editedPinStyle, setEditedPinStyle] = useState<PinStyle>('tape');
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   useEffect(() => {
@@ -26,6 +27,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
       setEditedTitle(pin.title || '');
       setEditedCaption(pin.caption || '');
       setEditedNote(pin.note || '');
+      setEditedPinStyle(pin.pinStyle);
       setIsEditing(false);
       setIsConfirmingDelete(false);
     }
@@ -48,6 +50,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
       title: editedTitle.trim(),
       caption: editedCaption.trim() || undefined,
       note: editedNote.trim() || undefined,
+      pinStyle: editedPinStyle,
     });
     setIsEditing(false);
   };
@@ -56,6 +59,16 @@ export const Lightbox: React.FC<LightboxProps> = ({
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(pin.pinnedAt));
+
+  const pinStylesList: { id: PinStyle; label: string; preview: string }[] = [
+    { id: 'tape', label: 'Washi Tape', preview: 'bg-brutal-yellow' },
+    { id: 'pin-orange', label: 'Orange Pin', preview: 'bg-orange-400 rounded-full' },
+    { id: 'pin-purple', label: 'Purple Pin', preview: 'bg-brutal-purple rounded-full' },
+    { id: 'pin-yellow', label: 'Yellow Pin', preview: 'bg-brutal-yellow rounded-full' },
+    { id: 'pin-red', label: 'Red Pin', preview: 'bg-rose-500 rounded-full' },
+    { id: 'pin-green', label: 'Green Pin', preview: 'bg-brutal-green rounded-full' },
+    { id: 'pin-blue', label: 'Blue Pin', preview: 'bg-sky-400 rounded-full' },
+  ];
 
   return (
     <div 
@@ -144,6 +157,30 @@ export const Lightbox: React.FC<LightboxProps> = ({
                   />
                 </div>
 
+                {/* Attachment Style in Lightbox Edit */}
+                <div>
+                  <label className="block text-xs font-black uppercase tracking-wider text-black mb-1">
+                    Attachment Style
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {pinStylesList.map(item => (
+                      <button
+                        type="button"
+                        key={item.id}
+                        onClick={() => setEditedPinStyle(item.id)}
+                        className={`px-2 py-1 rounded text-xs font-bold border border-black flex items-center gap-1.5 ${
+                          editedPinStyle === item.id
+                            ? 'bg-black text-white'
+                            : 'bg-white text-black hover:bg-zinc-100'
+                        }`}
+                      >
+                        <span className={`w-3 h-3 border border-black ${item.preview}`} />
+                        <span>{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-xs font-black uppercase tracking-wider text-black mb-1">
                     Caption
@@ -177,6 +214,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                       setEditedTitle(pin.title);
                       setEditedCaption(pin.caption || '');
                       setEditedNote(pin.note || '');
+                      setEditedPinStyle(pin.pinStyle);
                       setIsEditing(false);
                     }}
                     className="btn-brutal px-3 py-1.5 text-xs font-bold border-2 border-black rounded-lg bg-zinc-100 hover:bg-zinc-200"
@@ -205,7 +243,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                       title="Edit pin name"
                     >
                       <Edit3 className="w-3 h-3" />
-                      <span>Edit Name</span>
+                      <span>Edit</span>
                     </button>
                   </div>
 
