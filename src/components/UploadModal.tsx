@@ -55,8 +55,8 @@ export const UploadModal: React.FC<UploadModalProps> = ({
       }
 
       try {
-        // Compress / resize image
-        const compressed = await compressImage(file, 1400, 1400, 0.85);
+        // Compress / resize image with adaptive optimization for Cloud Firestore
+        const compressed = await compressImage(file);
         const approxSizeKb = Math.round((compressed.length * 3) / 4 / 1024);
         
         newStaged.push({

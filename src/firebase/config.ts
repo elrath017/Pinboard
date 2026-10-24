@@ -31,6 +31,11 @@ export function getActiveFirebaseConfig(): FirebaseCustomConfig | null {
     appId: (metaEnv.VITE_FIREBASE_APP_ID as string) || '',
   };
 
+  // Trim any accidental leading/trailing whitespace
+  if (envConfig.projectId) {
+    envConfig.projectId = envConfig.projectId.trim();
+  }
+
   if (envConfig.apiKey && envConfig.projectId) {
     return envConfig;
   }
@@ -40,6 +45,9 @@ export function getActiveFirebaseConfig(): FirebaseCustomConfig | null {
     const saved = localStorage.getItem('pinboard_firebase_config');
     if (saved) {
       const parsed = JSON.parse(saved) as FirebaseCustomConfig;
+      if (parsed.projectId) {
+        parsed.projectId = parsed.projectId.trim();
+      }
       if (parsed.apiKey && parsed.projectId) {
         return parsed;
       }

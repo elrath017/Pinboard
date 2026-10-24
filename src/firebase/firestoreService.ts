@@ -42,15 +42,18 @@ export function subscribeToUserPins(
   if (!db) return () => {};
 
   const pinsRef = collection(db, 'users', userId, 'pins');
-  const q = query(pinsRef, orderBy('order', 'asc'));
 
+  // Query collection directly and sort client-side.
+  // This guarantees that all pins load reliably even if the order index is building
+  // or if a document had order omitted.
   return onSnapshot(
-    q,
+    pinsRef,
     snapshot => {
       const pins: ImagePin[] = [];
       snapshot.forEach(docSnap => {
         pins.push(docSnap.data() as ImagePin);
       });
+      pins.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
       onUpdate(pins);
     },
     err => {
@@ -62,9 +65,20 @@ export function subscribeToUserPins(
 
 // 2. Save / update a single pin
 export async function saveUserPin(userId: string, pin: ImagePin): Promise<void> {
-  if (!db) return;
-  const pinDoc = doc(db, 'users', userId, 'pins', pin.id);
-  await setDoc(pinDoc, cleanDocData(pin), { merge: true });
+  if (!db) {
+    throw new Error('Firebase Database is not initialized. Please verify configuration.');
+  }
+
+  // Ensure mandatory fields comply with security rules and schema bounds
+  const sanitizedPin: ImagePin = {
+    ...pin,
+    order: typeof pin.order === 'number' && !isNaN(pin.order) && pin.order >= 0 ? pin.order : 0,
+    rotation: typeof pin.rotation === 'number' && !isNaN(pin.rotation) ? Math.max(-45, Math.min(45, Math.round(pin.rotation * 10) / 10)) : 0,
+    pinnedAt: typeof pin.pinnedAt === 'number' && pin.pinnedAt > 0 ? pin.pinnedAt : Date.now(),
+  };
+
+  const pinDoc = doc(db, 'users', userId, 'pins', sanitizedPin.id);
+  await setDoc(pinDoc, cleanDocData(sanitizedPin), { merge: true });
 }
 
 // 3. Delete a pin
@@ -78,12 +92,24 @@ export async function deleteUserPin(userId: string, pinId: string): Promise<void
 export async function saveAllUserPins(userId: string, pins: ImagePin[]): Promise<void> {
   if (!db) return;
   const firestore = db;
-  const batch = writeBatch(firestore);
-  pins.forEach(pin => {
-    const pinDoc = doc(firestore, 'users', userId, 'pins', pin.id);
-    batch.set(pinDoc, cleanDocData(pin), { merge: true });
-  });
-  await batch.commit();
+
+  // Firestore batch limit is 500 ops; commit in chunks of 400
+  const CHUNK_SIZE = 400;
+  for (let i = 0; i < pins.length; i += CHUNK_SIZE) {
+    const chunk = pins.slice(i, i + CHUNK_SIZE);
+    const batch = writeBatch(firestore);
+    chunk.forEach((pin, idx) => {
+      const sanitizedPin: ImagePin = {
+        ...pin,
+        order: typeof pin.order === 'number' && !isNaN(pin.order) && pin.order >= 0 ? pin.order : (i + idx),
+        rotation: typeof pin.rotation === 'number' && !isNaN(pin.rotation) ? Math.max(-45, Math.min(45, Math.round(pin.rotation * 10) / 10)) : 0,
+        pinnedAt: typeof pin.pinnedAt === 'number' && pin.pinnedAt > 0 ? pin.pinnedAt : Date.now(),
+      };
+      const pinDoc = doc(firestore, 'users', userId, 'pins', sanitizedPin.id);
+      batch.set(pinDoc, cleanDocData(sanitizedPin), { merge: true });
+    });
+    await batch.commit();
+  }
 }
 
 // 5. Subscribe to a user's daily tasks in real-time

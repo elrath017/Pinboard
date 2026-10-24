@@ -60,17 +60,23 @@ export function App() {
         async cloudPins => {
           if (cloudPins && cloudPins.length > 0) {
             setPins(cloudPins);
+            // Cache latest cloud pins into local IndexedDB so offline/fallback is always up to date
+            saveAllPins(cloudPins).catch(console.warn);
           } else {
             // New user cloud collection has no pins yet:
             // Check if user has pins in local storage to preserve/migrate!
             const localPins = await getStoredPins();
             const pinsToSeed = localPins && localPins.length > 0 ? localPins : SAMPLE_PINS;
             setPins(pinsToSeed);
-            saveAllUserPins(user.uid, pinsToSeed).catch(console.warn);
+            saveAllUserPins(user.uid, pinsToSeed).catch(err => {
+              console.warn('Initial pin seeding to Firestore failed:', err);
+            });
           }
         },
         err => {
           console.error('Error listening to user pins:', err);
+          setToastMessage(`⚠️ Cloud sync error: ${err.message || 'Permission denied'}. Showing local pins.`);
+          setTimeout(() => setToastMessage(null), 5000);
           getStoredPins().then(loaded => {
             if (loaded && loaded.length > 0) setPins(loaded);
             else setPins(SAMPLE_PINS);
@@ -236,18 +242,27 @@ export function App() {
     const updated = [...createdPins, ...pins];
     setPins(updated);
 
-    if (user) {
-      for (const p of createdPins) {
-        await saveUserPin(user.uid, p);
-      }
-    } else {
-      for (const p of createdPins) {
-        await savePin(p);
-      }
+    // 1. Mirror immediately to local IndexedDB for all users
+    for (const p of createdPins) {
+      await savePin(p).catch(console.warn);
     }
 
-    setToastMessage(`📌 Added ${createdPins.length} ${createdPins.length === 1 ? 'image' : 'images'} to pinboard!`);
-    setTimeout(() => setToastMessage(null), 3000);
+    // 2. Persist to Firestore if signed in
+    if (user) {
+      try {
+        for (const p of createdPins) {
+          await saveUserPin(user.uid, p);
+        }
+        setToastMessage(`📌 Added ${createdPins.length} ${createdPins.length === 1 ? 'image' : 'images'} & saved to cloud!`);
+      } catch (err: any) {
+        console.error('Failed to sync pin to Firestore:', err);
+        setToastMessage(`⚠️ Pin saved locally, but cloud sync failed: ${err.message || 'Permission or storage limit'}`);
+      }
+    } else {
+      setToastMessage(`📌 Added ${createdPins.length} ${createdPins.length === 1 ? 'image' : 'images'} to pinboard!`);
+    }
+
+    setTimeout(() => setToastMessage(null), 4000);
   };
 
   // Delete pin
@@ -255,10 +270,16 @@ export function App() {
     const updated = pins.filter(p => p.id !== id);
     setPins(updated);
 
+    // Always delete locally from IndexedDB
+    await deletePinFromDB(id).catch(console.warn);
+
+    // If logged in, delete from Firestore
     if (user) {
-      await deleteUserPin(user.uid, id);
-    } else {
-      await deletePinFromDB(id);
+      try {
+        await deleteUserPin(user.uid, id);
+      } catch (err) {
+        console.error('Failed to delete pin from Firestore:', err);
+      }
     }
 
     if (lightboxPin?.id === id) {
@@ -277,10 +298,17 @@ export function App() {
     setPins(updated);
     const target = updated.find(p => p.id === id);
     if (target) {
+      // Update locally
+      await savePin(target).catch(console.warn);
+
+      // Update in Firestore if logged in
       if (user) {
-        await saveUserPin(user.uid, target);
-      } else {
-        await savePin(target);
+        try {
+          await saveUserPin(user.uid, target);
+        } catch (err: any) {
+          console.error('Failed to update pin in Firestore:', err);
+          setToastMessage(`⚠️ Update saved locally; cloud sync failed: ${err.message}`);
+        }
       }
     }
     if (lightboxPin?.id === id && target) {
@@ -293,10 +321,13 @@ export function App() {
   // Reorder pins
   const handleReorderPins = async (reordered: ImagePin[]) => {
     setPins(reordered);
+    await saveAllPins(reordered).catch(console.warn);
     if (user) {
-      await saveAllUserPins(user.uid, reordered);
-    } else {
-      await saveAllPins(reordered);
+      try {
+        await saveAllUserPins(user.uid, reordered);
+      } catch (err) {
+        console.error('Failed to save reordered pins to Firestore:', err);
+      }
     }
   };
 
@@ -506,7 +537,16 @@ export function App() {
       {/* Firebase Cloud Setup Modal */}
       <FirebaseSetupModal
         isOpen={isSetupModalOpen}
-        onClose={closeSetupModal}
+        onClose={() => {
+          closeSetupModal();
+          try {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('modal')) {
+              url.searchParams.delete('modal');
+              window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
+            }
+          } catch (e) {}
+        }}
       />
 
       {/* Neo-brutalist Footer */}

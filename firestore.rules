@@ -24,7 +24,7 @@ rules_version = '2';
 //   - caption: string (optional, max 1000 chars) - Subtitle or caption
 //   - note: string (optional, max 2000 chars) - Sticky note content
 //   - tags: list of strings (optional, max 10 tags, each tag max 30 chars) - Categorization tags
-//   - imageUrl: string (required, 5-800,000 chars, data URI, https:// or gs://) - Compressed image or URL
+//   - imageUrl: string (required, 5-1,000,000 chars, data URI, https://, http://, or gs://) - Compressed image or URL
 //   - pinnedAt: number or timestamp (required, epoch ms or timestamp, immutable) - Pin creation time
 //   - rotation: number (required, between -45 and +45) - Visual canvas rotation angle
 //   - pinStyle: string (required, one of ['tape', 'pin-yellow', 'pin-purple', 'pin-orange', 'pin-red', 'pin-green', 'pin-blue']) - Pin aesthetic style
@@ -122,8 +122,13 @@ service cloud.firestore {
         (!('email' in data) || (isValidEmail(data.email) && data.email.size() <= 254)) &&
         (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 100)) &&
         (!('photoURL' in data) || (data.photoURL is string &&
-          (data.photoURL.matches("^https?://.*") || data.photoURL.matches("^data:image/.*") || data.photoURL.matches("^gs://.*")) &&
-          data.photoURL.size() <= 2048)) &&
+          data.photoURL.size() <= 2048 &&
+          (
+            (data.photoURL.size() >= 11 && data.photoURL[0:11] == 'data:image/') ||
+            (data.photoURL.size() >= 8 && data.photoURL[0:8] == 'https://') ||
+            (data.photoURL.size() >= 7 && data.photoURL[0:7] == 'http://') ||
+            (data.photoURL.size() >= 5 && data.photoURL[0:5] == 'gs://')
+          ))) &&
         (!('createdAt' in data) || (data.createdAt is timestamp || (data.createdAt is number && data.createdAt > 0))) &&
         (!('lastLoginAt' in data) || (data.lastLoginAt is timestamp || (data.lastLoginAt is number && data.lastLoginAt > 0)));
     }
@@ -134,8 +139,13 @@ service cloud.firestore {
         hasRequiredFields(['id', 'title', 'imageUrl', 'pinnedAt', 'rotation', 'pinStyle', 'order']) &&
         data.id is string && data.id == pinId && data.id.size() > 0 && data.id.size() <= 128 &&
         data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
-        data.imageUrl is string && data.imageUrl.size() >= 5 && data.imageUrl.size() <= 800000 &&
-        (data.imageUrl.matches("^https?://.*") || data.imageUrl.matches("^data:image/.*") || data.imageUrl.matches("^gs://.*")) &&
+        data.imageUrl is string && data.imageUrl.size() >= 5 && data.imageUrl.size() <= 1000000 &&
+        (
+          (data.imageUrl.size() >= 11 && data.imageUrl[0:11] == 'data:image/') ||
+          (data.imageUrl.size() >= 8 && data.imageUrl[0:8] == 'https://') ||
+          (data.imageUrl.size() >= 7 && data.imageUrl[0:7] == 'http://') ||
+          (data.imageUrl.size() >= 5 && data.imageUrl[0:5] == 'gs://')
+        ) &&
         ((data.pinnedAt is number && data.pinnedAt > 0 && data.pinnedAt < 4102444800000) || (data.pinnedAt is timestamp)) &&
         data.rotation is number && data.rotation >= -45 && data.rotation <= 45 &&
         data.pinStyle in ['tape', 'pin-yellow', 'pin-purple', 'pin-orange', 'pin-red', 'pin-green', 'pin-blue'] &&
