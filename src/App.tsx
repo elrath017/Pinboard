@@ -338,7 +338,7 @@ export function App() {
             <span>Pinboard • Neo-Brutalist Visual Canvas & Daily Tasks</span>
           </div>
           <div className="flex items-center gap-2">
-            <span>Inspired by the look of <a href="https://gitdiagram.com" target="_blank" rel="noreferrer" className="text-brutal-purple hover:underline">gitdiagram.com</a></span>
+            <span>Keep your ideas organized and daily habits on track</span>
           </div>
         </div>
       </footer>

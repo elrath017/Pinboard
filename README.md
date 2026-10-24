@@ -1,10 +1,10 @@
 # 📌 Pinboard — Neo-Brutalist Visual Canvas & Daily Tasks
 
-A responsive, single-page web app built with **React**, **Vite**, and **Tailwind CSS**, styled in a vibrant **Neo-Brutalist** aesthetic inspired by **[GitDiagram.com](https://gitdiagram.com/)**.
+A responsive, single-page web app built with **React**, **Vite**, and **Tailwind CSS**, styled in a vibrant **Neo-Brutalist** aesthetic.
 
 ---
 
-## 🎨 Visual Theme (GitDiagram Neo-Brutalist Look)
+## 🎨 Visual Theme (Neo-Brutalist Look)
 
 - **Soft Canvas Background**: Light off-white / lavender tint (`#faf8ff`) with a subtle pinboard dot-grid pattern.
 - **Thick Solid Black Borders**: `2.5px` to `3px` solid black borders on all cards, buttons, inputs, and modals.
@@ -16,7 +16,7 @@ A responsive, single-page web app built with **React**, **Vite**, and **Tailwind
 - **Interactive Tactile Micro-Interactions**:
   - Buttons translate `2px` on hover (shadow shrinks to `2px 2px 0 #000`)
   - On active/click, buttons "press in" by `4px` (`shadow: none`)
-- **Branded Header**: Styled as **Notice** (black) + **Board** (purple `#8b5cf6`).
+- **Branded Header**: Styled as **Pin** (black) + **board** (purple `#8b5cf6`).
 - **Notice Board Elements**:
   - Organic slight rotations (`-2°` to `+2°`)
   - Washi tape strips and colored pushpins with black outlines on top of cards.
@@ -37,7 +37,7 @@ A responsive, single-page web app built with **React**, **Vite**, and **Tailwind
   - Reorder cards by dragging and dropping them on the board.
 - **Persistent Storage**:
   - High-res images and pins are stored in browser **IndexedDB** for reliability.
-  - Fast instant load with pre-populated GitDiagram architecture & design diagrams.
+  - Fast instant load with pre-populated sample architecture & design diagrams.
 
 ### 2. 📅 Today's Tasks Square (Top-Right Corner)
 - **Top-Right Fixed Widget**:

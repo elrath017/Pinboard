@@ -300,7 +300,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
             </label>
             <input
               type="text"
-              placeholder="Architecture, GitDiagram, Frontend, UI"
+              placeholder="Architecture, Design, Frontend, UI"
               value={tagsInput}
               onChange={e => setTagsInput(e.target.value)}
               className="w-full bg-[#faf8ff] border-2 border-black shadow-[2px_2px_0_#000] focus:shadow-brutal rounded-lg px-3 py-2 text-xs font-mono text-black placeholder-zinc-400 outline-none transition-all"
